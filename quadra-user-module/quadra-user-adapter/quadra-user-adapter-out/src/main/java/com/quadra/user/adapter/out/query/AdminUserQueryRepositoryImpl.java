@@ -5,10 +5,12 @@ import com.quadra.user.application.port.in.dto.AdminUserDTO;
 import com.quadra.user.application.port.in.dto.AdminUserDetailDTO;
 import com.quadra.user.application.port.in.dto.PageResult;
 import com.quadra.user.application.port.out.AdminUserQueryPort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 public class AdminUserQueryRepositoryImpl implements AdminUserQueryPort {
 
@@ -31,6 +33,13 @@ public class AdminUserQueryRepositoryImpl implements AdminUserQueryPort {
 
     @Override
     public AdminUserDetailDTO findUserDetail(Long id) {
-        return userMapper.getAdminUserDetail(id);
+        log.info("查询用户详情，id={}", id);
+        AdminUserDetailDTO detail = userMapper.getAdminUserDetail(id);
+        if (detail == null) {
+            log.warn("数据库中未找到用户详情，id={}", id);
+        } else {
+            log.info("查询用户详情成功，id={}, mobile={}", id, detail.mobile());
+        }
+        return detail;
     }
 }

@@ -91,7 +91,7 @@ public class SystemApplicationService implements AssignRoleToAdminUseCase, Grant
 
     // ==================== 用户管理 ====================
 
-    public void updateUserStatus(Long userId, Integer status) {
+    public void updateUserStatus(String userId, Integer status) {
         if (status == null || (status != 0 && status != 1)) {
             throw new DomainException("用户状态不合法");
         }
@@ -101,7 +101,7 @@ public class SystemApplicationService implements AssignRoleToAdminUseCase, Grant
         }
     }
 
-    public String resetUserPassword(Long userId) {
+    public String resetUserPassword(String userId) {
         String newPassword = userCommandPort.resetPassword(userId);
         if (newPassword == null || newPassword.isBlank()) {
             throw new DomainException("用户不存在");

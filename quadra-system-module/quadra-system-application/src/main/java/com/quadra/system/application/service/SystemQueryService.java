@@ -54,7 +54,7 @@ public class SystemQueryService implements ListAdminsQuery, ListUsersQuery, GetM
     }
 
     @Override
-    public UserDetailDTO getUserDetailById(Long id) {
+    public UserDetailDTO getUserDetailById(String id) {
         return userQueryPort.findUserDetailById(id);
     }
 

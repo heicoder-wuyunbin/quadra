@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record UserDetailDTO(
-        Long id,
+        String id,
         String mobile,
         Integer status,
         LocalDateTime createdAt,

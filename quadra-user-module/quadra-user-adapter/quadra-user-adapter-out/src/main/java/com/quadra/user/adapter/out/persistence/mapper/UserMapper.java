@@ -68,16 +68,28 @@ public interface UserMapper extends BaseMapper<UserDO> {
     long countAdminUsers(@Param("mobile") String mobile, @Param("status") Integer status);
 
     @Select("""
-        SELECT u.id, u.mobile, u.status,
-               u.created_at AS createdAt, u.updated_at AS updatedAt,
-               p.nickname, p.avatar, p.gender, p.birthday, p.city,
-               p.income, p.profession, p.marriage, p.cover_pic AS coverPic, p.tags,
-               s.like_notification AS likeNotification,
-               s.comment_notification AS commentNotification,
-               s.system_notification AS systemNotification
+        SELECT 
+            u.id, 
+            u.mobile, 
+            u.status,
+            u.created_at AS createdAt, 
+            u.updated_at AS updatedAt,
+            COALESCE(p.nickname, '') AS nickname,
+            COALESCE(p.avatar, '') AS avatar,
+            COALESCE(p.gender, 0) AS gender,
+            p.birthday,
+            COALESCE(p.city, '') AS city,
+            p.income,
+            p.profession,
+            p.marriage,
+            p.cover_pic AS coverPic,
+            p.tags,
+            COALESCE(s.like_notification, 1) AS likeNotification,
+            COALESCE(s.comment_notification, 1) AS commentNotification,
+            COALESCE(s.system_notification, 1) AS systemNotification
         FROM `user` u
-        LEFT JOIN user_profile p ON u.id = p.id AND p.deleted = 0
-        LEFT JOIN user_setting s ON u.id = s.id AND s.deleted = 0
+        LEFT JOIN user_profile p ON u.id = p.id
+        LEFT JOIN user_setting s ON u.id = s.id
         WHERE u.deleted = 0 AND u.id = #{userId}
     """)
     AdminUserDetailDTO getAdminUserDetail(@Param("userId") Long userId);

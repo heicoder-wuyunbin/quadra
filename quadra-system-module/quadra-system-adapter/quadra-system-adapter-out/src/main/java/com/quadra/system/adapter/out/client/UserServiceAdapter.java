@@ -29,13 +29,13 @@ public class UserServiceAdapter implements UserQueryPort, UserCommandPort {
     }
 
     @Override
-    public UserDetailDTO findUserDetailById(Long id) {
+    public UserDetailDTO findUserDetailById(String id) {
         UserServiceResult<UserDetailDTO> result = userServiceClient.getUserDetail(id);
         return unwrap(result);
     }
 
     @Override
-    public int updateStatus(Long userId, Integer status) {
+    public int updateStatus(String userId, Integer status) {
         UserServiceResult<Void> result =
                 userServiceClient.updateStatus(userId, new UpdateUserStatusRequest(status));
         unwrap(result);
@@ -43,7 +43,7 @@ public class UserServiceAdapter implements UserQueryPort, UserCommandPort {
     }
 
     @Override
-    public String resetPassword(Long userId) {
+    public String resetPassword(String userId) {
         UserServiceResult<ResetPasswordResult> result = userServiceClient.resetPassword(userId);
         ResetPasswordResult payload = unwrap(result);
         return payload != null ? payload.newPassword() : null;

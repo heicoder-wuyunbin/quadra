@@ -22,14 +22,14 @@ public interface UserServiceClient {
     );
 
     @GetMapping("/{id}")
-    UserServiceResult<UserDetailDTO> getUserDetail(@PathVariable("id") Long id);
+    UserServiceResult<UserDetailDTO> getUserDetail(@PathVariable("id") String id);
 
     @PutMapping("/{id}/status")
     UserServiceResult<Void> updateStatus(
-            @PathVariable("id") Long id,
+            @PathVariable("id") String id,
             @RequestBody UpdateUserStatusRequest request
     );
 
     @PostMapping("/{id}/reset-password")
-    UserServiceResult<ResetPasswordResult> resetPassword(@PathVariable("id") Long id);
+    UserServiceResult<ResetPasswordResult> resetPassword(@PathVariable("id") String id);
 }

@@ -124,7 +124,7 @@ public class SystemController {
     @Operation(summary = "获取用户详情", description = "根据用户ID获取详细信息（管理端）")
     @GetMapping("/users/{id}")
     public Result<UserDetailDTO> getUserDetail(
-            @Parameter(description = "用户ID") @PathVariable("id") Long id) {
+            @Parameter(description = "用户ID") @PathVariable("id") String id) {
         UserDetailDTO detail = listUsersQuery.getUserDetailById(id);
         if (detail == null) {
             return Result.failure(ResultCode.NOT_FOUND, "用户不存在");
@@ -135,7 +135,7 @@ public class SystemController {
     @Operation(summary = "更新用户状态", description = "启用/禁用用户账号（管理端）")
     @PutMapping("/users/{id}/status")
     public Result<Void> updateUserStatus(
-            @Parameter(description = "用户ID") @PathVariable("id") Long id,
+            @Parameter(description = "用户ID") @PathVariable("id") String id,
             @RequestBody UpdateUserStatusRequest request) {
         systemApplicationService.updateUserStatus(id, request.status());
         return Result.success();
@@ -144,7 +144,7 @@ public class SystemController {
     @Operation(summary = "重置用户密码", description = "重置用户密码为默认值（管理端）")
     @PostMapping("/users/{id}/reset-password")
     public Result<ResetPasswordResult> resetUserPassword(
-            @Parameter(description = "用户ID") @PathVariable("id") Long id) {
+            @Parameter(description = "用户ID") @PathVariable("id") String id) {
         String newPassword = systemApplicationService.resetUserPassword(id);
         return Result.success(new ResetPasswordResult(newPassword));
     }

@@ -112,7 +112,7 @@ export interface PageResult<T> {
 }
 
 export interface UserAdminDTO {
-  id: number;
+  id: string;
   mobile: string;
   nickname?: string;
   gender?: number;
@@ -122,7 +122,7 @@ export interface UserAdminDTO {
 }
 
 export interface UserDetailDTO {
-  id: number;
+  id: string;
   mobile: string;
   status: number;
   createdAt: string;

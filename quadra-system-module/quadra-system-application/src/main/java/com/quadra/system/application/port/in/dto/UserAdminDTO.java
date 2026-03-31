@@ -3,7 +3,7 @@ package com.quadra.system.application.port.in.dto;
 import java.time.LocalDateTime;
 
 public record UserAdminDTO(
-        Long id,
+        String id,
         String mobile,
         String nickname,
         Integer gender,
