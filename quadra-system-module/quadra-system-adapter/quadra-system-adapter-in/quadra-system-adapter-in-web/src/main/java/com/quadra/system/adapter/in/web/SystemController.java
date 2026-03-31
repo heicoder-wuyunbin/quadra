@@ -100,6 +100,16 @@ public class SystemController {
         return Result.success(adminId);
     }
 
+    @Operation(summary = "更新管理员", description = "更新管理员信息")
+    @PutMapping("/admins/{id}")
+    public Result<Void> updateAdmin(
+            @Parameter(description = "管理员 ID") @PathVariable("id") Long id,
+            @RequestBody UpdateAdminRequest request) {
+        UpdateAdminCommand command = new UpdateAdminCommand(id, request.realName());
+        systemApplicationService.updateAdmin(command);
+        return Result.success();
+    }
+
     @Operation(summary = "获取管理员列表", description = "分页查询管理员列表")
     @GetMapping("/admins")
     public Result<PageResult<AdminDTO>> listAdmins(

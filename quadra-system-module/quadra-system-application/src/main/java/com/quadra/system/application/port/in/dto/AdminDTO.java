@@ -1,5 +1,6 @@
 package com.quadra.system.application.port.in.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record AdminDTO(
@@ -8,5 +9,6 @@ public record AdminDTO(
     String realName,
     String avatar,
     Integer status,
-    List<Long> roleIds
+    List<Long> roleIds,
+    LocalDateTime createdAt
 ) {}

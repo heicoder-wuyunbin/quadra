@@ -46,7 +46,8 @@ public class AdminQueryRepositoryImpl implements AdminQueryPort {
                     adminDO.getRealName(),
                     adminDO.getAvatar(),
                     adminDO.getStatus(),
-                    roleIds
+                    roleIds,
+                    adminDO.getCreatedAt()
             ));
         }
 
@@ -66,7 +67,8 @@ public class AdminQueryRepositoryImpl implements AdminQueryPort {
                 adminDO.getRealName(),
                 adminDO.getAvatar(),
                 adminDO.getStatus(),
-                roleIds
+                roleIds,
+                adminDO.getCreatedAt()
         );
     }
 

@@ -13,6 +13,8 @@ const Admins: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState<AdminDTO | null>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -35,26 +37,43 @@ const Admins: React.FC = () => {
 
   const handleCreate = () => {
     form.resetFields();
+    setIsEditMode(false);
+    setEditingAdmin(null);
+    setModalVisible(true);
+  };
+
+  const handleEdit = (record: AdminDTO) => {
+    setIsEditMode(true);
+    setEditingAdmin(record);
+    form.setFieldsValue({
+      username: record.username,
+      realName: record.realName,
+    });
     setModalVisible(true);
   };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      await adminApi.createAdmin(values as CreateAdminRequest);
-      message.success('创建成功');
+      if (isEditMode && editingAdmin) {
+        await adminApi.updateAdmin(editingAdmin.id!, values);
+        message.success('更新成功');
+      } else {
+        await adminApi.createAdmin(values as CreateAdminRequest);
+        message.success('创建成功');
+      }
       setModalVisible(false);
       fetchData();
     } catch (error) {
-      console.error('Failed to create admin:', error);
+      console.error('Failed to save admin:', error);
     }
   };
 
   const columns = [
     {
       title: '管理员 ID',
-      dataIndex: 'adminId',
-      key: 'adminId',
+      dataIndex: 'id',
+      key: 'id',
       width: 100,
     },
     {
@@ -89,8 +108,8 @@ const Admins: React.FC = () => {
       title: '操作',
       key: 'action',
       width: 100,
-      render: () => (
-        <Button type="link" icon={<EditOutlined />}>
+      render: (_: any, record: AdminDTO) => (
+        <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
           编辑
         </Button>
       ),
@@ -110,7 +129,7 @@ const Admins: React.FC = () => {
         <Table
           columns={columns}
           dataSource={data}
-          rowKey="adminId"
+          rowKey="id"
           loading={loading}
           pagination={{
             current: page,
@@ -127,7 +146,7 @@ const Admins: React.FC = () => {
       </Card>
 
       <Modal
-        title="创建管理员"
+        title={isEditMode ? '编辑管理员' : '创建管理员'}
         open={modalVisible}
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
@@ -140,15 +159,17 @@ const Admins: React.FC = () => {
             label="用户名"
             rules={[{ required: true, message: '请输入用户名' }]}
           >
-            <Input placeholder="请输入用户名" />
+            <Input placeholder="请输入用户名" disabled={isEditMode} />
           </Form.Item>
-          <Form.Item
-            name="password"
-            label="密码"
-            rules={[{ required: true, message: '请输入密码' }]}
-          >
-            <Input.Password placeholder="请输入密码" />
-          </Form.Item>
+          {!isEditMode && (
+            <Form.Item
+              name="password"
+              label="密码"
+              rules={[{ required: true, message: '请输入密码' }]}
+            >
+              <Input.Password placeholder="请输入密码" />
+            </Form.Item>
+          )}
           <Form.Item
             name="realName"
             label="真实姓名"

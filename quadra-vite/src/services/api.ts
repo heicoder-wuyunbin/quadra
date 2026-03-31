@@ -56,6 +56,14 @@ export const adminApi = {
     });
   },
 
+  updateAdmin: (id: number, data: { realName: string }) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/system/admins/${id}`,
+      method: 'put',
+      data,
+    });
+  },
+
   assignRole: (data: AssignRoleRequest) => {
     return request<any, ApiResult<void>>({
       url: '/v1/system/admin/roles',

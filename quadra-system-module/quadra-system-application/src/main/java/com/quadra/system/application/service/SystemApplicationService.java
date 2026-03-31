@@ -8,6 +8,7 @@ import com.quadra.system.application.port.in.command.CreateAdminCommand;
 import com.quadra.system.application.port.in.command.CreateRoleCommand;
 import com.quadra.system.application.port.in.command.CreateMenuCommand;
 import com.quadra.system.application.port.in.command.GrantMenuCommand;
+import com.quadra.system.application.port.in.command.UpdateAdminCommand;
 import com.quadra.system.application.port.out.AdminRepositoryPort;
 import com.quadra.system.application.port.out.RoleRepositoryPort;
 import com.quadra.system.application.port.out.MenuRepositoryPort;
@@ -86,6 +87,16 @@ public class SystemApplicationService implements AssignRoleToAdminUseCase, Grant
             admin.disable();
         }
 
+        adminRepositoryPort.update(admin);
+    }
+
+    public void updateAdmin(UpdateAdminCommand command) {
+        SysAdmin admin = adminRepositoryPort.findById(command.adminId());
+        if (admin == null) {
+            throw new DomainException("管理员不存在");
+        }
+
+        admin.updateInfo(command.realName(), admin.getAvatar());
         adminRepositoryPort.update(admin);
     }
 
