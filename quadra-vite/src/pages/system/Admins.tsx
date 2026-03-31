@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Table, Card, Button, Modal, Form, Input, message, Typography, Tag, Space, Switch, Popconfirm } from 'antd';
-import { PlusOutlined, EditOutlined, LockOutlined, StopOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { useState, useEffect, Key } from 'react';
+import { Table, Card, Button, Modal, Form, Input, message, Typography, Tag, Space, Switch, Popconfirm, Divider } from 'antd';
+import { PlusOutlined, EditOutlined, LockOutlined, StopOutlined, CheckCircleOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi } from '@/services/api';
 import type { AdminDTO, CreateAdminRequest } from '@/services/types';
 
@@ -18,6 +18,7 @@ const Admins: React.FC = () => {
   const [editingAdmin, setEditingAdmin] = useState<AdminDTO | null>(null);
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -100,12 +101,56 @@ const Admins: React.FC = () => {
     }
   };
 
+  const handleBatchDisable = async (status: number) => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请选择要操作的管理员');
+      return;
+    }
+
+    try {
+      await adminApi.batchUpdateAdminStatus(selectedRowKeys as number[], status);
+      message.success(status === 1 ? '已批量启用' : '已批量禁用');
+      setSelectedRowKeys([]);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to batch update status:', error);
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请选择要删除的管理员');
+      return;
+    }
+
+    try {
+      await adminApi.batchDeleteAdmins(selectedRowKeys as number[]);
+      message.success('批量删除成功');
+      setSelectedRowKeys([]);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to batch delete:', error);
+    }
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    getCheckboxProps: (record: AdminDTO) => ({
+      disabled: record.id === 1,
+      name: record.username,
+    }),
+  };
+
   const columns = [
     {
       title: '管理员 ID',
       dataIndex: 'id',
       key: 'id',
-      width: 100,
+      width: 120,
+      fixed: 'left',
     },
     {
       title: '用户名',
@@ -138,7 +183,8 @@ const Admins: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 250,
+      fixed: 'right',
       render: (_: any, record: AdminDTO) => (
         <Space size="small">
           <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
@@ -168,9 +214,40 @@ const Admins: React.FC = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Title level={2} style={{ margin: 0 }}>管理员管理</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-          创建管理员
-        </Button>
+        <Space>
+          {selectedRowKeys.length > 0 && (
+            <>
+              <Button 
+                danger
+                onClick={() => handleBatchDisable(0)}
+                disabled={selectedRowKeys.some(key => key === 1)}
+              >
+                批量禁用
+              </Button>
+              <Button 
+                type="primary"
+                ghost
+                onClick={() => handleBatchDisable(1)}
+                disabled={selectedRowKeys.some(key => key === 1)}
+              >
+                批量启用
+              </Button>
+              <Button 
+                danger
+                icon={<DeleteOutlined />}
+                onClick={handleBatchDelete}
+                disabled={selectedRowKeys.some(key => key === 1)}
+              >
+                批量删除
+              </Button>
+              <Divider orientation="vertical" />
+              <span>已选择 {selectedRowKeys.length} 项</span>
+            </>
+          )}
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+            创建管理员
+          </Button>
+        </Space>
       </div>
       
       <Card>
@@ -178,7 +255,9 @@ const Admins: React.FC = () => {
           columns={columns}
           dataSource={data}
           rowKey="id"
+          rowSelection={rowSelection}
           loading={loading}
+          scroll={{ x: 1200 }}
           pagination={{
             current: page,
             pageSize,

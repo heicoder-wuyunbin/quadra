@@ -41,6 +41,13 @@ public class AdminRepositoryImpl implements AdminRepositoryPort {
     }
 
     @Override
+    public void delete(SysAdmin admin) {
+        SysAdminDO adminDO = toAdminDO(admin);
+        adminDO.setDeleted(1);
+        sysAdminMapper.updateById(adminDO);
+    }
+
+    @Override
     public SysAdmin findById(Long id) {
         SysAdminDO adminDO = sysAdminMapper.selectById(id);
         if (adminDO == null) {

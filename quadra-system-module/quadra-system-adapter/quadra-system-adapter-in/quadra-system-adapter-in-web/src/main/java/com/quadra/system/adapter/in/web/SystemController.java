@@ -129,6 +129,22 @@ public class SystemController {
         return Result.success();
     }
 
+    @Operation(summary = "批量更新管理员状态", description = "批量启用/禁用管理员账号")
+    @PutMapping("/admins/status/batch")
+    public Result<Void> batchUpdateAdminStatus(
+            @RequestBody BatchAdminIdsRequest request) {
+        systemApplicationService.batchUpdateAdminStatus(request.adminIds(), request.status());
+        return Result.success();
+    }
+
+    @Operation(summary = "批量删除管理员", description = "批量软删除管理员")
+    @DeleteMapping("/admins/batch")
+    public Result<Void> batchDeleteAdmins(
+            @RequestBody BatchAdminIdsRequest request) {
+        systemApplicationService.batchDeleteAdmins(request.adminIds());
+        return Result.success();
+    }
+
     @Operation(summary = "获取管理员列表", description = "分页查询管理员列表")
     @GetMapping("/admins")
     public Result<PageResult<AdminDTO>> listAdmins(

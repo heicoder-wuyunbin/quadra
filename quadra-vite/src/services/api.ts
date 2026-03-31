@@ -80,6 +80,22 @@ export const adminApi = {
     });
   },
 
+  batchUpdateAdminStatus: (adminIds: number[], status: number) => {
+    return request<any, ApiResult<void>>({
+      url: '/v1/system/admins/status/batch',
+      method: 'put',
+      data: { adminIds, status },
+    });
+  },
+
+  batchDeleteAdmins: (adminIds: number[]) => {
+    return request<any, ApiResult<void>>({
+      url: '/v1/system/admins/batch',
+      method: 'delete',
+      data: { adminIds },
+    });
+  },
+
   assignRole: (data: AssignRoleRequest) => {
     return request<any, ApiResult<void>>({
       url: '/v1/system/admin/roles',

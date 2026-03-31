@@ -115,6 +115,28 @@ public class SystemApplicationService implements AssignRoleToAdminUseCase, Grant
         adminRepositoryPort.update(admin);
     }
 
+    public void batchUpdateAdminStatus(List<Long> adminIds, Integer status) {
+        for (Long adminId : adminIds) {
+            if (adminId == 1) {
+                throw new DomainException("超级管理员不能被禁用");
+            }
+            updateAdminStatus(adminId, status);
+        }
+    }
+
+    public void batchDeleteAdmins(List<Long> adminIds) {
+        if (adminIds.contains(1L)) {
+            throw new DomainException("超级管理员不能被删除");
+        }
+
+        for (Long adminId : adminIds) {
+            SysAdmin admin = adminRepositoryPort.findById(adminId);
+            if (admin != null) {
+                adminRepositoryPort.delete(admin);
+            }
+        }
+    }
+
     // ==================== 用户管理 ====================
 
     public void updateUserStatus(String userId, Integer status) {

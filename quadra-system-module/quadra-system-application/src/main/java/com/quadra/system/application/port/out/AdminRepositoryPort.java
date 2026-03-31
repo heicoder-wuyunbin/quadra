@@ -7,6 +7,7 @@ public interface AdminRepositoryPort {
     Long nextId();
     void save(SysAdmin admin);
     void update(SysAdmin admin);
+    void delete(SysAdmin admin);
     SysAdmin findById(Long id);
     SysAdmin findByUsername(String username);
     List<Long> findRoleIdsByAdminId(Long adminId);
