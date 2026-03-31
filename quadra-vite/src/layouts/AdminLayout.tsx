@@ -26,18 +26,40 @@ const menuItems: MenuProps['items'] = [
     label: '仪表盘',
   },
   {
-    key: '/users',
+    key: '/user',
     icon: <UserOutlined />,
     label: '用户管理',
+    children: [
+      {
+        key: '/user/users',
+        label: '用户列表',
+      },
+      {
+        key: '/user/audit',
+        label: '用户审核',
+      },
+      {
+        key: '/user/blacklist',
+        label: '黑名单管理',
+      },
+    ],
   },
   {
     key: '/content',
     icon: <FileTextOutlined />,
-    label: '内容管理',
+    label: '内容审核',
     children: [
       {
-        key: '/content/timeline',
-        label: '时间线',
+        key: '/content/movements',
+        label: '动态审核',
+      },
+      {
+        key: '/content/videos',
+        label: '视频审核',
+      },
+      {
+        key: '/content/reports',
+        label: '举报管理',
       },
     ],
   },
@@ -47,12 +69,12 @@ const menuItems: MenuProps['items'] = [
     label: '社交管理',
     children: [
       {
-        key: '/social/followers',
-        label: '粉丝管理',
+        key: '/social/matches',
+        label: '匹配记录',
       },
       {
-        key: '/social/recommend',
-        label: '推荐用户',
+        key: '/social/friendships',
+        label: '好友关系',
       },
     ],
   },
@@ -60,6 +82,85 @@ const menuItems: MenuProps['items'] = [
     key: '/interaction',
     icon: <MessageOutlined />,
     label: '互动管理',
+    children: [
+      {
+        key: '/interaction/comments',
+        label: '评论管理',
+      },
+    ],
+  },
+  {
+    key: '/message',
+    icon: <BellOutlined />,
+    label: '消息推送',
+    children: [
+      {
+        key: '/message/notices',
+        label: '站内信管理',
+      },
+      {
+        key: '/message/send',
+        label: '发送站内信',
+      },
+      {
+        key: '/message/templates',
+        label: '消息模板',
+      },
+      {
+        key: '/message/announcements',
+        label: '系统公告',
+      },
+      {
+        key: '/message/records',
+        label: '推送记录',
+      },
+    ],
+  },
+  {
+    key: '/log',
+    icon: <FileDoneOutlined />,
+    label: '日志监控',
+    children: [
+      {
+        key: '/log/operation',
+        label: '操作日志',
+      },
+      {
+        key: '/log/login',
+        label: '登录日志',
+      },
+      {
+        key: '/log/error',
+        label: '错误日志',
+      },
+      {
+        key: '/log/api',
+        label: '接口日志',
+      },
+      {
+        key: '/log/slow-sql',
+        label: '慢查询日志',
+      },
+    ],
+  },
+  {
+    key: '/monitor',
+    icon: <MonitorOutlined />,
+    label: '运维监控',
+    children: [
+      {
+        key: '/monitor/services',
+        label: '服务监控',
+      },
+      {
+        key: '/monitor/performance',
+        label: '性能监控',
+      },
+      {
+        key: '/monitor/alerts',
+        label: '告警管理',
+      },
+    ],
   },
   {
     key: '/system',
