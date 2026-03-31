@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Table, Card, Button, Modal, Form, Input, message, Typography, Tag, Space } from 'antd';
-import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { Table, Card, Button, Modal, Form, Input, message, Typography, Tag, Space, Switch, Popconfirm } from 'antd';
+import { PlusOutlined, EditOutlined, LockOutlined, StopOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { adminApi } from '@/services/api';
 import type { AdminDTO, CreateAdminRequest } from '@/services/types';
 
@@ -13,9 +13,11 @@ const Admins: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [modalVisible, setModalVisible] = useState(false);
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<AdminDTO | null>(null);
   const [form] = Form.useForm();
+  const [passwordForm] = Form.useForm();
 
   useEffect(() => {
     fetchData();
@@ -69,6 +71,35 @@ const Admins: React.FC = () => {
     }
   };
 
+  const handlePasswordChange = (record: AdminDTO) => {
+    setEditingAdmin(record);
+    passwordForm.resetFields();
+    setPasswordModalVisible(true);
+  };
+
+  const handlePasswordSubmit = async () => {
+    try {
+      const values = await passwordForm.validateFields();
+      if (editingAdmin) {
+        await adminApi.updateAdminPassword(editingAdmin.id, values);
+        message.success('密码修改成功');
+        setPasswordModalVisible(false);
+      }
+    } catch (error) {
+      console.error('Failed to update password:', error);
+    }
+  };
+
+  const handleStatusChange = async (record: AdminDTO, newStatus: number) => {
+    try {
+      await adminApi.updateAdminStatus(record.id, newStatus);
+      message.success(newStatus === 1 ? '已启用' : '已禁用');
+      fetchData();
+    } catch (error) {
+      console.error('Failed to update status:', error);
+    }
+  };
+
   const columns = [
     {
       title: '管理员 ID',
@@ -107,11 +138,28 @@ const Admins: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 100,
+      width: 200,
       render: (_: any, record: AdminDTO) => (
-        <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
-          编辑
-        </Button>
+        <Space size="small">
+          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+            编辑
+          </Button>
+          <Button type="link" icon={<LockOutlined />} onClick={() => handlePasswordChange(record)}>
+            密码
+          </Button>
+          {record.id !== 1 && (
+            <Popconfirm
+              title={record.status === 1 ? "确定要禁用此管理员吗？" : "确定要启用此管理员吗？"}
+              onConfirm={() => handleStatusChange(record, record.status === 1 ? 0 : 1)}
+              okText="确认"
+              cancelText="取消"
+            >
+              <Button type="link" icon={record.status === 1 ? <StopOutlined /> : <CheckCircleOutlined />}>
+                {record.status === 1 ? '禁用' : '启用'}
+              </Button>
+            </Popconfirm>
+          )}
+        </Space>
       ),
     },
   ];
@@ -176,6 +224,28 @@ const Admins: React.FC = () => {
             rules={[{ required: true, message: '请输入真实姓名' }]}
           >
             <Input placeholder="请输入真实姓名" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="修改密码"
+        open={passwordModalVisible}
+        onOk={handlePasswordSubmit}
+        onCancel={() => setPasswordModalVisible(false)}
+        okText="确认"
+        cancelText="取消"
+      >
+        <Form form={passwordForm} layout="vertical">
+          <Form.Item
+            name="password"
+            label="新密码"
+            rules={[
+              { required: true, message: '请输入新密码' },
+              { min: 6, message: '密码长度不能少于 6 位' }
+            ]}
+          >
+            <Input.Password placeholder="请输入新密码" />
           </Form.Item>
         </Form>
       </Modal>

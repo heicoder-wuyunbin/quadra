@@ -64,6 +64,22 @@ export const adminApi = {
     });
   },
 
+  updateAdminPassword: (id: number, data: { password: string }) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/system/admins/${id}/password`,
+      method: 'put',
+      data,
+    });
+  },
+
+  updateAdminStatus: (id: number, status: number) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/system/admins/${id}/status`,
+      method: 'put',
+      data: { status },
+    });
+  },
+
   assignRole: (data: AssignRoleRequest) => {
     return request<any, ApiResult<void>>({
       url: '/v1/system/admin/roles',

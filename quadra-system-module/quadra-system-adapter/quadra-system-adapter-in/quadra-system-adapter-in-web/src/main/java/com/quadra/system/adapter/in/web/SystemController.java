@@ -110,6 +110,25 @@ public class SystemController {
         return Result.success();
     }
 
+    @Operation(summary = "更新管理员密码", description = "更新管理员密码")
+    @PutMapping("/admins/{id}/password")
+    public Result<Void> updateAdminPassword(
+            @Parameter(description = "管理员 ID") @PathVariable("id") Long id,
+            @RequestBody UpdateAdminPasswordRequest request) {
+        UpdateAdminPasswordCommand command = new UpdateAdminPasswordCommand(id, request.password());
+        systemApplicationService.updateAdminPassword(command);
+        return Result.success();
+    }
+
+    @Operation(summary = "更新管理员状态", description = "启用/禁用管理员账号")
+    @PutMapping("/admins/{id}/status")
+    public Result<Void> updateAdminStatus(
+            @Parameter(description = "管理员 ID") @PathVariable("id") Long id,
+            @RequestBody UpdateAdminStatusRequest request) {
+        systemApplicationService.updateAdminStatus(id, request.status());
+        return Result.success();
+    }
+
     @Operation(summary = "获取管理员列表", description = "分页查询管理员列表")
     @GetMapping("/admins")
     public Result<PageResult<AdminDTO>> listAdmins(
