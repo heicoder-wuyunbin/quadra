@@ -5,10 +5,12 @@ import type { MenuProps } from 'antd';
 import {
   DashboardOutlined,
   UserOutlined,
-  TeamOutlined,
   FileTextOutlined,
+  TeamOutlined,
   MessageOutlined,
-  StarOutlined,
+  BellOutlined,
+  FileDoneOutlined,
+  MonitorOutlined,
   SettingOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';

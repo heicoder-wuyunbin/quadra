@@ -1,0 +1,69 @@
+.blacklist-page {
+  height: 100vh;
+}
+
+.blacklist-hero,
+.blacklist-form,
+.blacklist-list,
+.empty-state {
+  padding: 32rpx 28rpx;
+}
+
+.blacklist-form,
+.blacklist-list,
+.empty-state {
+  margin-top: 24rpx;
+}
+
+.add-button {
+  margin-top: 24rpx;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.blacklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 28rpx 0;
+  border-bottom: 2rpx solid rgba(246, 223, 218, 0.85);
+}
+
+.blacklist-item:last-child {
+  border-bottom: none;
+}
+
+.item-main {
+  flex: 1;
+}
+
+.item-title {
+  display: block;
+  color: #724b45;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.item-meta {
+  display: block;
+  margin-top: 8rpx;
+  color: #a17e78;
+  font-size: 24rpx;
+}
+
+.remove-button,
+.more-button,
+.empty-button {
+  margin-top: 24rpx;
+}
+
+.empty-inner {
+  padding: 36rpx 0 12rpx;
+  color: #a98680;
+  text-align: center;
+}

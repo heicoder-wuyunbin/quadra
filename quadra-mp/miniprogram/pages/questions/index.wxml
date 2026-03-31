@@ -1,0 +1,71 @@
+<scroll-view class="page-shell questions-page" scroll-y>
+  <block wx:if="{{loggedIn}}">
+    <view class="hero-card question-hero">
+      <text class="section-title">破冰问题</text>
+      <text class="section-subtitle">页面映射 /v1/questions 系列接口，适合先把“与当前用户强相关”的分页与管理能力跑通。</text>
+      <text class="card-tip">后端约束是每位用户最多 3 个问题，这里保留明显提示，便于联调时校验服务端规则。</text>
+    </view>
+
+    <view class="form-card question-form">
+      <text class="field-label">{{editingId ? '编辑问题' : '新增问题'}}</text>
+      <textarea
+        class="field-textarea"
+        maxlength="100"
+        placeholder="例如：第一次见面你最想聊什么？"
+        value="{{question}}"
+        bindinput="handleQuestionInput"
+      ></textarea>
+
+      <view class="sort-row">
+        <view class="sort-box">
+          <text class="field-label">排序值</text>
+          <input
+            class="field-input"
+            type="number"
+            placeholder="默认 1"
+            value="{{sortOrder}}"
+            bindinput="handleSortInput"
+          />
+        </view>
+        <button wx:if="{{editingId}}" class="secondary-button cancel-button" bindtap="cancelEdit">取消编辑</button>
+      </view>
+
+      <button class="primary-button submit-button" loading="{{saving}}" bindtap="submitQuestion">
+        {{saving ? '提交中...' : editingId ? '保存修改' : '新增问题'}}
+      </button>
+    </view>
+
+    <view class="list-card question-list">
+      <view class="list-header">
+        <text class="section-title">我的提问清单</text>
+        <text class="pill-tag">{{items.length}} 条</text>
+      </view>
+
+      <block wx:if="{{items.length}}">
+        <view class="question-item" wx:for="{{items}}" wx:key="questionId">
+          <view class="item-main">
+            <text class="item-title">{{item.question}}</text>
+            <text class="item-meta">排序：{{item.sortOrder}}</text>
+            <text class="item-meta">创建时间：{{item.createdAt}}</text>
+          </view>
+          <view class="action-group">
+            <button class="ghost-button action-button" data-question-id="{{item.questionId}}" bindtap="startEdit">编辑</button>
+            <button class="ghost-button action-button danger-button" data-question-id="{{item.questionId}}" bindtap="handleDelete">删除</button>
+          </view>
+        </view>
+      </block>
+
+      <view wx:else class="empty-inner">还没有设置破冰问题，先新增一句最能代表你的开场白吧。</view>
+
+      <button wx:if="{{hasMore && items.length}}" class="secondary-button more-button" loading="{{loading}}" bindtap="loadMore">
+        {{loading ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+  </block>
+
+  <view wx:else class="empty-card empty-state">
+    <text class="section-title">请先登录</text>
+    <text class="section-subtitle">破冰问题属于个人域能力，需要身份态后才能查询和维护。</text>
+    <button class="primary-button empty-button" bindtap="goLogin">去登录</button>
+  </view>
+</scroll-view>

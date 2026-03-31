@@ -1,10 +1,9 @@
 import { useState, useEffect, Key } from 'react';
-import { Table, Card, Button, Modal, Form, Input, message, Typography, Tag, Space, Switch, Popconfirm, Divider } from 'antd';
-import { PlusOutlined, EditOutlined, LockOutlined, StopOutlined, CheckCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Table, Card, Button, Modal, Form, Input, message, Tag, Space, Divider, Breadcrumb, Popconfirm, Switch } from 'antd';
+import { PlusOutlined, EditOutlined, LockOutlined, StopOutlined, CheckCircleOutlined, DeleteOutlined, HomeOutlined } from '@ant-design/icons';
 import { adminApi } from '@/services/api';
 import type { AdminDTO, CreateAdminRequest } from '@/services/types';
 
-const { Title } = Typography;
 
 const Admins: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -19,6 +18,19 @@ const Admins: React.FC = () => {
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+
+  const breadcrumbItems = [
+    {
+      title: <HomeOutlined />,
+      href: '/',
+    },
+    {
+      title: '系统管理',
+    },
+    {
+      title: '管理员管理',
+    },
+  ];
 
   useEffect(() => {
     fetchData();
@@ -142,6 +154,8 @@ const Admins: React.FC = () => {
       disabled: record.id === 1,
       name: record.username,
     }),
+    fixed: 'left',
+    columnWidth: 50,
   };
 
   const columns = [
@@ -149,7 +163,7 @@ const Admins: React.FC = () => {
       title: '管理员 ID',
       dataIndex: 'id',
       key: 'id',
-      width: 120,
+      width: 150,
       fixed: 'left',
     },
     {
@@ -183,7 +197,7 @@ const Admins: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 250,
+      width: 280,
       fixed: 'right',
       render: (_: any, record: AdminDTO) => (
         <Space size="small">
@@ -212,21 +226,29 @@ const Admins: React.FC = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Title level={2} style={{ margin: 0 }}>管理员管理</Title>
-        <Space>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={breadcrumbItems}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Space size="middle">
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+            创建管理员
+          </Button>
           {selectedRowKeys.length > 0 && (
             <>
+              <Divider type="vertical" style={{ height: '24px' }} />
+              <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>已选择 {selectedRowKeys.length} 项</span>
               <Button 
                 danger
+                size="small"
                 onClick={() => handleBatchDisable(0)}
                 disabled={selectedRowKeys.some(key => key === 1)}
               >
                 批量禁用
               </Button>
               <Button 
-                type="primary"
-                ghost
+                size="small"
                 onClick={() => handleBatchDisable(1)}
                 disabled={selectedRowKeys.some(key => key === 1)}
               >
@@ -235,29 +257,26 @@ const Admins: React.FC = () => {
               <Button 
                 danger
                 icon={<DeleteOutlined />}
+                size="small"
                 onClick={handleBatchDelete}
                 disabled={selectedRowKeys.some(key => key === 1)}
               >
                 批量删除
               </Button>
-              <Divider orientation="vertical" />
-              <span>已选择 {selectedRowKeys.length} 项</span>
             </>
           )}
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-            创建管理员
-          </Button>
         </Space>
       </div>
       
-      <Card>
+      <Card styles={{ body: { padding: 0 } }} variant="borderless">
         <Table
           columns={columns}
           dataSource={data}
           rowKey="id"
           rowSelection={rowSelection}
           loading={loading}
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1400 }}
+          size="middle"
           pagination={{
             current: page,
             pageSize,
@@ -268,6 +287,7 @@ const Admins: React.FC = () => {
               setPage(page);
               setPageSize(pageSize || 10);
             },
+            style: { marginRight: '24px' },
           }}
         />
       </Card>

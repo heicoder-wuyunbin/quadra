@@ -1,27 +1,55 @@
-<!--index.wxml-->
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <view class="userinfo">
-      <block wx:if="{{canIUseNicknameComp && !hasUserInfo}}">
-        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
-        </button>
-        <view class="nickname-wrapper">
-          <text class="nickname-label">昵称</text>
-          <input type="nickname" class="nickname-input" placeholder="请输入昵称" bind:change="onInputChange" />
+<scroll-view class="page-shell index-page" scroll-y>
+  <view class="hero-card hero-section">
+    <view class="hero-copy">
+      <text class="hero-kicker">Quadra 心动小站</text>
+      <text class="hero-title">{{nickname}}</text>
+      <text class="hero-subtitle">{{subtitle}}</text>
+      <view class="status-row">
+        <view class="status-pill {{sessionReady ? 'status-on' : 'status-off'}}">
+          {{sessionReady ? '已登录' : '待登录'}}
         </view>
-      </block>
-      <block wx:elif="{{!hasUserInfo}}">
-        <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-        <view wx:else> 请使用2.10.4及以上版本基础库 </view>
-      </block>
-      <block wx:else>
-        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-        <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-      </block>
+        <view class="status-pill status-soft">用户域优先联调</view>
+      </view>
     </view>
-    <view class="usermotto">
-      <text class="user-motto">{{motto}}</text>
+    <image class="hero-avatar" src="{{avatar}}" mode="cover"></image>
+  </view>
+
+  <view class="section-card guide-card">
+    <text class="section-title">从哪里开始？</text>
+    <text class="section-subtitle">先把后端已经具备的能力接进小程序，再逐步扩展社交、内容与推荐。</text>
+    <view class="guide-list">
+      <view
+        class="guide-item"
+        wx:for="{{quickActions}}"
+        wx:key="title"
+        data-url="{{item.url}}"
+        data-type="{{item.type}}"
+        bindtap="handleActionTap"
+      >
+        <view>
+          <text class="guide-title">{{item.title}}</text>
+          <text class="guide-desc">{{item.desc}}</text>
+        </view>
+        <text class="guide-arrow">›</text>
+      </view>
     </view>
+  </view>
+
+  <view class="section-card highlight-card">
+    <text class="section-title">本期落地重点</text>
+    <view class="highlight-list">
+      <view class="highlight-item" wx:for="{{planHighlights}}" wx:key="*this">
+        <text class="highlight-dot"></text>
+        <text class="highlight-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-card footer-card">
+    <text class="section-title">当前联调建议</text>
+    <text class="section-subtitle">先启动网关和用户服务，再从“登录 → 我的资料 → 黑名单 → 破冰问题”顺序验证。</text>
+    <button class="primary-button footer-button" bindtap="handleActionTap" data-url="/pages/login/index" data-type="navigate">
+      现在去登录
+    </button>
   </view>
 </scroll-view>

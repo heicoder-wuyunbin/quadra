@@ -1,0 +1,38 @@
+<view class="page-shell login-page">
+  <view class="hero-card login-hero">
+    <text class="login-kicker">登录联调入口</text>
+    <text class="login-title">先把认证态拿到手</text>
+    <text class="login-subtitle">这里直接对接 OpenAPI 中的 /v1/users/login，登录后即可进入“我的”页继续完善资料。</text>
+  </view>
+
+  <view class="form-card login-form">
+    <view class="field-group">
+      <text class="field-label">手机号</text>
+      <input
+        class="field-input"
+        type="number"
+        maxlength="11"
+        placeholder="请输入手机号"
+        value="{{mobile}}"
+        bindinput="handleMobileInput"
+      />
+    </view>
+
+    <view class="field-group">
+      <text class="field-label">密码</text>
+      <input
+        class="field-input"
+        password
+        placeholder="请输入密码"
+        value="{{password}}"
+        bindinput="handlePasswordInput"
+      />
+    </view>
+
+    <button class="primary-button submit-button" loading="{{loading}}" bindtap="submitLogin">
+      {{loading ? '登录中...' : '登录并进入我的主页'}}
+    </button>
+
+    <text class="card-tip">默认填充的是教学联调占位值，联调时替换成真实账号即可。</text>
+  </view>
+</view>

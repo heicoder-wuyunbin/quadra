@@ -1,0 +1,99 @@
+<scroll-view class="page-shell profile-page" scroll-y>
+  <block wx:if="{{loggedIn}}">
+    <view class="hero-card profile-hero">
+      <view>
+        <text class="profile-kicker">我的资料</text>
+        <text class="profile-title">把你的心动名片补完整</text>
+        <text class="profile-subtitle">这里联调资料更新与偏好设置接口，保存时会同时调用 profile 和 setting 两条能力链路。</text>
+      </view>
+      <button class="avatar-button" open-type="chooseAvatar" bind:chooseavatar="handleAvatarChoose">
+        <image class="profile-avatar" src="{{avatar}}" mode="cover"></image>
+      </button>
+    </view>
+
+    <view class="form-card profile-form">
+      <view class="field-group">
+        <text class="field-label">昵称</text>
+        <input class="field-input" placeholder="给自己起个温柔昵称" value="{{nickname}}" data-field="nickname" bindinput="handleInput" />
+      </view>
+
+      <view class="grid-row">
+        <view class="grid-item">
+          <text class="field-label">城市</text>
+          <input class="field-input" placeholder="例如杭州" value="{{city}}" data-field="city" bindinput="handleInput" />
+        </view>
+        <view class="grid-item">
+          <text class="field-label">职业</text>
+          <input class="field-input" placeholder="例如产品经理" value="{{profession}}" data-field="profession" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <view class="grid-row">
+        <view class="grid-item">
+          <text class="field-label">收入描述</text>
+          <input class="field-input" placeholder="例如 20-30W" value="{{income}}" data-field="income" bindinput="handleInput" />
+        </view>
+        <view class="grid-item">
+          <text class="field-label">生日</text>
+          <input class="field-input" placeholder="YYYY-MM-DD" value="{{birthday}}" data-field="birthday" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <view class="grid-row">
+        <view class="grid-item">
+          <text class="field-label">性别</text>
+          <picker class="field-picker" mode="selector" range="{{genderOptions}}" range-key="label" value="{{genderIndex}}" bindchange="handleGenderChange">
+            <view>{{genderOptions[genderIndex].label}}</view>
+          </picker>
+        </view>
+        <view class="grid-item">
+          <text class="field-label">婚姻状态</text>
+          <picker class="field-picker" mode="selector" range="{{marriageOptions}}" range-key="label" value="{{marriageIndex}}" bindchange="handleMarriageChange">
+            <view>{{marriageOptions[marriageIndex].label}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="field-group">
+        <text class="field-label">标签</text>
+        <textarea
+          class="field-textarea"
+          placeholder="多个标签可用顿号、逗号或空格分隔，例如：温柔、爱旅行、喜欢小狗"
+          value="{{tagText}}"
+          data-field="tagText"
+          bindinput="handleInput"
+        ></textarea>
+      </view>
+    </view>
+
+    <view class="section-card notification-card">
+      <text class="section-title">通知偏好</text>
+      <text class="section-subtitle">后端当前开放的是更新接口，因此本页使用本地草稿保存切换状态，点击“保存资料”时统一提交。</text>
+
+      <view class="switch-row">
+        <text>收到喜欢提醒</text>
+        <switch color="#f19186" checked="{{likeNotification}}" data-field="likeNotification" bindchange="handleSwitchChange" />
+      </view>
+      <view class="switch-row">
+        <text>收到评论提醒</text>
+        <switch color="#f19186" checked="{{commentNotification}}" data-field="commentNotification" bindchange="handleSwitchChange" />
+      </view>
+      <view class="switch-row">
+        <text>系统消息提醒</text>
+        <switch color="#f19186" checked="{{systemNotification}}" data-field="systemNotification" bindchange="handleSwitchChange" />
+      </view>
+
+      <button class="secondary-button reset-button" bindtap="resetNotificationSetting">恢复默认提醒</button>
+    </view>
+
+    <button class="primary-button save-button" loading="{{saving || loading}}" bindtap="submitProfile">
+      {{saving ? '保存中...' : '保存资料与偏好'}}
+    </button>
+  </block>
+
+  <view wx:else class="empty-card empty-state">
+    <text class="section-title">还没有登录</text>
+    <text class="section-subtitle">要先拿到 access token，资料页和后续列表接口才能正常请求。</text>
+    <button class="primary-button empty-button" bindtap="goLogin">去登录</button>
+  </view>
+</scroll-view>

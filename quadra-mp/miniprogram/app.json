@@ -1,12 +1,41 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/logs/logs"
+    "pages/login/index",
+    "pages/profile/index",
+    "pages/blacklist/index",
+    "pages/questions/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "Weixin",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarTitleText": "Quadra 心动小站",
+    "navigationBarBackgroundColor": "#fff7f5",
+    "backgroundColor": "#fff7f5",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#b8928b",
+    "selectedColor": "#e57c74",
+    "backgroundColor": "#fffaf8",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      },
+      {
+        "pagePath": "pages/blacklist/index",
+        "text": "黑名单"
+      },
+      {
+        "pagePath": "pages/questions/index",
+        "text": "提问"
+      }
+    ]
   },
   "style": "v2",
   "componentFramework": "glass-easel",

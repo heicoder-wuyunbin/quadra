@@ -1,0 +1,52 @@
+<scroll-view class="page-shell blacklist-page" scroll-y>
+  <block wx:if="{{loggedIn}}">
+    <view class="hero-card blacklist-hero">
+      <text class="section-title">黑名单管理</text>
+      <text class="section-subtitle">这里直接对应 OpenAPI 的 /v1/blacklists，支持新增、分页查看与移除。</text>
+    </view>
+
+    <view class="form-card blacklist-form">
+      <text class="field-label">目标用户 ID</text>
+      <input
+        class="field-input"
+        type="number"
+        placeholder="输入要拉黑的用户 ID"
+        value="{{targetUserId}}"
+        bindinput="handleTargetInput"
+      />
+      <button class="primary-button add-button" loading="{{saving}}" bindtap="submitAdd">
+        {{saving ? '提交中...' : '添加到黑名单'}}
+      </button>
+    </view>
+
+    <view class="list-card blacklist-list">
+      <view class="list-header">
+        <text class="section-title">我的黑名单</text>
+        <text class="pill-tag">{{items.length}} 条</text>
+      </view>
+
+      <block wx:if="{{items.length}}">
+        <view class="blacklist-item" wx:for="{{items}}" wx:key="userId">
+          <view class="item-main">
+            <text class="item-title">{{item.nickname}}</text>
+            <text class="item-meta">用户 ID：{{item.userId}}</text>
+            <text class="item-meta">拉黑时间：{{item.blacklistedAt}}</text>
+          </view>
+          <button class="ghost-button remove-button" data-user-id="{{item.userId}}" bindtap="handleRemove">移除</button>
+        </view>
+      </block>
+
+      <view wx:else class="empty-inner">还没有拉黑任何人，列表会在这里出现。</view>
+
+      <button wx:if="{{hasMore && items.length}}" class="secondary-button more-button" loading="{{loading}}" bindtap="loadMore">
+        {{loading ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+  </block>
+
+  <view wx:else class="empty-card empty-state">
+    <text class="section-title">需要先登录</text>
+    <text class="section-subtitle">黑名单接口需要 Bearer Token，先登录后再来管理。</text>
+    <button class="primary-button empty-button" bindtap="goLogin">去登录</button>
+  </view>
+</scroll-view>
