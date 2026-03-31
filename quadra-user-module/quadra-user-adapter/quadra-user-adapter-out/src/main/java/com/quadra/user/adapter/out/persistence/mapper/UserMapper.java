@@ -29,8 +29,9 @@ public interface UserMapper extends BaseMapper<UserDO> {
 
     @Select({
             "<script>",
-            "SELECT u.id, u.mobile, u.status, u.created_at AS createdAt,",
-            "p.nickname, p.gender, p.city",
+            "SELECT u.id, u.mobile,",
+            "p.nickname, p.gender, p.city,",
+            "u.status, u.created_at AS createdAt",
             "FROM `user` u",
             "LEFT JOIN user_profile p ON u.id = p.id AND p.deleted = 0",
             "WHERE u.deleted = 0",
