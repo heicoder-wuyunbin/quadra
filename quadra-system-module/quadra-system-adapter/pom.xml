@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.quadra</groupId>
+        <artifactId>quadra-system</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>quadra-system-adapter</artifactId>
+    <packaging>pom</packaging>
+
+    <name>quadra-system-adapter</name>
+    <description>Adapter layer parent module</description>
+
+    <modules>
+        <module>quadra-system-adapter-in</module>
+        <module>quadra-system-adapter-out</module>
+    </modules>
+
+</project>

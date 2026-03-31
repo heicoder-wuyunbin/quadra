@@ -1,0 +1,2761 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Quadra Platform API",
+    "description": "Quadra 平台统一 API 网关接口文档 - 所有请求都需要通过网关发起",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:18080",
+      "description": "本地开发环境 - API Gateway"
+    },
+    {
+      "url": "https://api.quadra.com",
+      "description": "生产环境 - API Gateway"
+    }
+  ],
+  "tags": [
+    {
+      "name": "User",
+      "description": "用户相关接口"
+    },
+    {
+      "name": "Blacklist",
+      "description": "用户黑名单接口"
+    },
+    {
+      "name": "Question",
+      "description": "破冰问题接口"
+    },
+    {
+      "name": "Content",
+      "description": "内容相关接口"
+    },
+    {
+      "name": "Interaction",
+      "description": "互动相关接口"
+    },
+    {
+      "name": "Recommend",
+      "description": "推荐相关接口"
+    },
+    {
+      "name": "Social",
+      "description": "社交关系相关接口"
+    },
+    {
+      "name": "System",
+      "description": "系统管理相关接口"
+    }
+  ],
+  "paths": {
+    "/v1/users/register": {
+      "post": {
+        "tags": ["User"],
+        "summary": "用户注册",
+        "description": "使用手机号和密码进行注册",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/login": {
+      "post": {
+        "tags": ["User"],
+        "summary": "用户登录",
+        "description": "使用手机号和密码进行登录，返回双 Token",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_LoginResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/refresh": {
+      "post": {
+        "tags": ["User"],
+        "summary": "刷新令牌",
+        "description": "使用 refresh token 换取新 token 对",
+        "operationId": "refreshToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_LoginResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/logout": {
+      "post": {
+        "tags": ["User"],
+        "summary": "用户登出",
+        "description": "将当前 access token 加入登出黑名单",
+        "operationId": "logoutUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer Token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{id}/profile": {
+      "get": {
+        "tags": ["User"],
+        "summary": "获取用户资料",
+        "description": "根据用户 ID 获取基础资料及扩展标签",
+        "operationId": "getUserProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_UserProfileDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["User"],
+        "summary": "更新用户资料",
+        "description": "根据用户 ID 更新资料，仅支持增量更新（传 null 的字段不更新）",
+        "operationId": "updateUserProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{id}/setting": {
+      "put": {
+        "tags": ["User"],
+        "summary": "更新偏好设置",
+        "description": "根据用户 ID 更新偏好设置，仅支持增量更新",
+        "operationId": "updateUserSetting",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/blacklists": {
+      "post": {
+        "tags": ["Blacklist"],
+        "summary": "添加黑名单",
+        "description": "拉黑目标用户",
+        "operationId": "addBlacklist",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlacklistRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Blacklist"],
+        "summary": "分页查询我的黑名单",
+        "operationId": "listMyBlacklist",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_BlacklistItemDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Blacklist"],
+        "summary": "移除黑名单",
+        "description": "取消拉黑目标用户",
+        "operationId": "removeBlacklist",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlacklistRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/questions": {
+      "post": {
+        "tags": ["Question"],
+        "summary": "添加破冰问题",
+        "description": "每个用户最多添加 3 个",
+        "operationId": "addQuestion",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Question"],
+        "summary": "分页查询我的破冰问题",
+        "operationId": "listMyQuestions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_QuestionItemDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/questions/{id}": {
+      "put": {
+        "tags": ["Question"],
+        "summary": "更新破冰问题",
+        "description": "更新问题内容或排序",
+        "operationId": "updateQuestion",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "问题 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Question"],
+        "summary": "禁用/删除破冰问题",
+        "description": "逻辑删除",
+        "operationId": "disableQuestion",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "问题 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/movements": {
+      "post": {
+        "tags": ["Content"],
+        "summary": "发布图文动态",
+        "description": "发布图文动态，文本或媒体至少一项非空",
+        "operationId": "publishMovement",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishMovementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/movements/{id}": {
+      "delete": {
+        "tags": ["Content"],
+        "summary": "删除图文动态",
+        "description": "逻辑删除图文动态",
+        "operationId": "deleteMovement",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "动态 ID"
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/videos": {
+      "post": {
+        "tags": ["Content"],
+        "summary": "发布短视频",
+        "description": "发布短视频",
+        "operationId": "publishVideo",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishVideoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/timeline": {
+      "get": {
+        "tags": ["Content"],
+        "summary": "拉取时间线",
+        "description": "拉取用户的时间线 Feed",
+        "operationId": "pullTimeline",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "用户 ID"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_TimelineItemDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/interactions/likes": {
+      "post": {
+        "tags": ["Interaction"],
+        "summary": "点赞",
+        "operationId": "likeTarget",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LikeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Map_String_Long"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Interaction"],
+        "summary": "取消点赞",
+        "operationId": "cancelLike",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "targetType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["VIDEO", "MOVEMENT", "COMMENT"]
+            }
+          },
+          {
+            "name": "targetId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/interactions/comments": {
+      "post": {
+        "tags": ["Interaction"],
+        "summary": "评论",
+        "operationId": "commentTarget",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Map_String_Long"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Interaction"],
+        "summary": "查询评论列表",
+        "operationId": "listComments",
+        "parameters": [
+          {
+            "name": "targetType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["VIDEO", "MOVEMENT"]
+            }
+          },
+          {
+            "name": "targetId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_CommentDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/interactions/comments/{commentId}": {
+      "delete": {
+        "tags": ["Interaction"],
+        "summary": "删除评论",
+        "operationId": "deleteComment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recommends/actions": {
+      "post": {
+        "tags": ["Recommend"],
+        "summary": "记录用户行为",
+        "description": "记录用户对目标的行为（VIEW/LIKE/SKIP/DISLIKE）",
+        "operationId": "recordAction",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordActionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recommends/users": {
+      "get": {
+        "tags": ["Recommend"],
+        "summary": "获取今日推荐用户",
+        "description": "获取今日推荐用户列表，按分数倒序排列",
+        "operationId": "getTodayRecommendUsers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_RecommendUserDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recommends/contents": {
+      "get": {
+        "tags": ["Recommend"],
+        "summary": "获取推荐内容",
+        "description": "获取推荐内容列表，按分数倒序排列",
+        "operationId": "getRecommendContents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_RecommendContentDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/social/follows": {
+      "post": {
+        "tags": ["Social"],
+        "summary": "关注用户",
+        "description": "关注指定用户",
+        "operationId": "followUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/social/follows/{targetUserId}": {
+      "delete": {
+        "tags": ["Social"],
+        "summary": "取消关注",
+        "description": "取消关注指定用户",
+        "operationId": "unfollowUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "targetUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "目标用户 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/social/swipes": {
+      "post": {
+        "tags": ["Social"],
+        "summary": "滑动操作",
+        "description": "对用户进行 LIKE/DISLIKE 操作",
+        "operationId": "swipeLike",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwipeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_MatchResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/social/followers": {
+      "get": {
+        "tags": ["Social"],
+        "summary": "获取粉丝列表",
+        "description": "分页查询当前用户的粉丝列表",
+        "operationId": "getFollowers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_FollowerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/social/following": {
+      "get": {
+        "tags": ["Social"],
+        "summary": "获取关注列表",
+        "description": "分页查询当前用户关注的人列表",
+        "operationId": "getFollowing",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            },
+            "description": "每页大小"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_FollowerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin/login": {
+      "post": {
+        "tags": ["System"],
+        "summary": "管理员登录",
+        "description": "使用用户名和密码进行登录，返回双 Token",
+        "operationId": "adminLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_AdminLoginResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin/refresh": {
+      "post": {
+        "tags": ["System"],
+        "summary": "刷新令牌",
+        "description": "使用 refresh token 换取新 token 对",
+        "operationId": "refreshAdminToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_AdminTokenResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin/logout": {
+      "post": {
+        "tags": ["System"],
+        "summary": "管理员登出",
+        "description": "将当前 access token 加入登出黑名单",
+        "operationId": "adminLogout",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer Token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admins": {
+      "post": {
+        "tags": ["System"],
+        "summary": "创建管理员",
+        "description": "创建新的管理员账号",
+        "operationId": "createAdmin",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["System"],
+        "summary": "获取管理员列表",
+        "description": "分页查询管理员列表",
+        "operationId": "listAdmins",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "状态筛选"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "description": "每页数量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_PageResult_AdminDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin/roles": {
+      "post": {
+        "tags": ["System"],
+        "summary": "分配角色",
+        "description": "为管理员分配角色",
+        "operationId": "assignRole",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/roles": {
+      "post": {
+        "tags": ["System"],
+        "summary": "创建角色",
+        "description": "创建新的角色",
+        "operationId": "createRole",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/roles/menus": {
+      "post": {
+        "tags": ["System"],
+        "summary": "授予菜单权限",
+        "description": "为角色授予菜单权限",
+        "operationId": "grantMenu",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantMenuRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/menus": {
+      "post": {
+        "tags": ["System"],
+        "summary": "创建菜单",
+        "description": "创建新的菜单或权限点",
+        "operationId": "createMenu",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMenuRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_Long"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/menus/tree": {
+      "get": {
+        "tags": ["System"],
+        "summary": "获取菜单树",
+        "description": "获取完整的菜单树结构",
+        "operationId": "getMenuTree",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_List_MenuTreeDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/analysis/daily": {
+      "get": {
+        "tags": ["System"],
+        "summary": "获取每日分析数据",
+        "description": "按日期查询每日统计分析数据",
+        "operationId": "getDailyAnalysis",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "日期"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result_DailyAnalysisDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT Bearer Token 认证，通过 Gateway 统一鉴权"
+      }
+    },
+    "schemas": {
+      "Result_Void": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "Result_Long": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "integer",
+            "format": "int64",
+            "example": 123
+          }
+        }
+      },
+      "Result_Map_String_Long": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["mobile", "password"],
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "example": "13800138000"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        }
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "LoginResultDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UserProfileDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE", "UNKNOWN"]
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date"
+          },
+          "city": {
+            "type": "string"
+          },
+          "income": {
+            "type": "string"
+          },
+          "profession": {
+            "type": "string"
+          },
+          "marriage": {
+            "type": "string",
+            "enum": ["SINGLE", "MARRIED", "DIVORCED"]
+          },
+          "coverPic": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE", "UNKNOWN"],
+            "nullable": true
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "income": {
+            "type": "string",
+            "nullable": true
+          },
+          "profession": {
+            "type": "string",
+            "nullable": true
+          },
+          "marriage": {
+            "type": "string",
+            "enum": ["SINGLE", "MARRIED", "DIVORCED"],
+            "nullable": true
+          },
+          "coverPic": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "UpdateSettingRequest": {
+        "type": "object",
+        "properties": {
+          "likeNotification": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "commentNotification": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "systemNotification": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "BlacklistRequest": {
+        "type": "object",
+        "required": ["targetUserId"],
+        "properties": {
+          "targetUserId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "BlacklistItemDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "blacklistedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "QuestionRequest": {
+        "type": "object",
+        "required": ["question"],
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "QuestionItemDTO": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "question": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PublishMovementRequest": {
+        "type": "object",
+        "properties": {
+          "textContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "medias": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/MediaInfo"
+            }
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "MediaInfo": {
+        "type": "object",
+        "required": ["type", "url"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["IMAGE", "VIDEO"]
+          },
+          "url": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string",
+            "nullable": true
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "PublishVideoRequest": {
+        "type": "object",
+        "required": ["videoUrl"],
+        "properties": {
+          "videoUrl": {
+            "type": "string"
+          },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TimelineItemDTO": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "itemType": {
+            "type": "string",
+            "enum": ["VIDEO", "MOVEMENT"]
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "textContent": {
+            "type": "string"
+          },
+          "medias": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaInfo"
+            }
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLiked": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LikeRequest": {
+        "type": "object",
+        "required": ["targetType", "targetId"],
+        "properties": {
+          "targetType": {
+            "type": "string",
+            "enum": ["VIDEO", "MOVEMENT", "COMMENT"]
+          },
+          "targetId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CommentRequest": {
+        "type": "object",
+        "required": ["targetType", "targetId", "content"],
+        "properties": {
+          "targetType": {
+            "type": "string",
+            "enum": ["VIDEO", "MOVEMENT"]
+          },
+          "targetId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "content": {
+            "type": "string"
+          },
+          "replyToId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "CommentDTO": {
+        "type": "object",
+        "properties": {
+          "commentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "replyToId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RecordActionRequest": {
+        "type": "object",
+        "required": ["targetType", "targetId", "actionType"],
+        "properties": {
+          "targetType": {
+            "type": "string",
+            "enum": ["USER", "CONTENT"]
+          },
+          "targetId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": ["VIEW", "LIKE", "SKIP", "DISLIKE"]
+          },
+          "weight": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        }
+      },
+      "RecommendUserDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "distance": {
+            "type": "number",
+            "format": "double"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RecommendContentDTO": {
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string",
+            "enum": ["VIDEO", "MOVEMENT"]
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "textContent": {
+            "type": "string"
+          },
+          "coverUrl": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "FollowRequest": {
+        "type": "object",
+        "required": ["targetUserId"],
+        "properties": {
+          "targetUserId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "SwipeRequest": {
+        "type": "object",
+        "required": ["targetUserId", "likeType"],
+        "properties": {
+          "targetUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "likeType": {
+            "type": "string",
+            "enum": ["LIKE", "DISLIKE"]
+          }
+        }
+      },
+      "MatchResultDTO": {
+        "type": "object",
+        "properties": {
+          "isMatch": {
+            "type": "boolean"
+          },
+          "matchId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "targetUser": {
+            "$ref": "#/components/schemas/RecommendUserDTO"
+          }
+        }
+      },
+      "FollowerDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "followedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isFollowing": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageResult_T": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageNo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Result_PageResult_BlacklistItemDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "Result_PageResult_QuestionItemDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "Result_PageResult_TimelineItemDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "Result_PageResult_CommentDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "Result_PageResult_RecommendUserDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "Result_PageResult_RecommendContentDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "Result_PageResult_FollowerDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "AdminLoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminRefreshTokenRequest": {
+        "type": "object",
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminLoginResultDTO": {
+        "type": "object",
+        "properties": {
+          "adminId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminTokenResultDTO": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateAdminRequest": {
+        "type": "object",
+        "required": ["username", "password", "realName"],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "realName": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminDTO": {
+        "type": "object",
+        "properties": {
+          "adminId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "realName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Result_PageResult_AdminDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PageResult_T"
+          }
+        }
+      },
+      "AssignRoleRequest": {
+        "type": "object",
+        "required": ["adminId", "roleIds"],
+        "properties": {
+          "adminId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "roleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "CreateRoleRequest": {
+        "type": "object",
+        "required": ["roleCode", "roleName"],
+        "properties": {
+          "roleCode": {
+            "type": "string"
+          },
+          "roleName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GrantMenuRequest": {
+        "type": "object",
+        "required": ["roleId", "menuIds"],
+        "properties": {
+          "roleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "menuIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "CreateMenuRequest": {
+        "type": "object",
+        "required": ["menuName", "menuType"],
+        "properties": {
+          "parentId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "menuName": {
+            "type": "string"
+          },
+          "menuType": {
+            "type": "string",
+            "enum": ["MENU", "BUTTON", "API"]
+          },
+          "permissionCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "MenuTreeDTO": {
+        "type": "object",
+        "properties": {
+          "menuId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "menuName": {
+            "type": "string"
+          },
+          "menuType": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "path": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuTreeDTO"
+            }
+          }
+        }
+      },
+      "Result_List_MenuTreeDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuTreeDTO"
+            }
+          }
+        }
+      },
+      "DailyAnalysisDTO": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "newUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newContents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "interactions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matches": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Result_DailyAnalysisDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DailyAnalysisDTO"
+          }
+        }
+      },
+      "Result_LoginResultDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LoginResultDTO"
+          }
+        }
+      },
+      "Result_UserProfileDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserProfileDTO"
+          }
+        }
+      },
+      "Result_MatchResultDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MatchResultDTO"
+          }
+        }
+      },
+      "Result_AdminLoginResultDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminLoginResultDTO"
+          }
+        }
+      },
+      "Result_AdminTokenResultDTO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result_Void"
+          }
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminTokenResultDTO"
+          }
+        }
+      }
+    }
+  }
+}

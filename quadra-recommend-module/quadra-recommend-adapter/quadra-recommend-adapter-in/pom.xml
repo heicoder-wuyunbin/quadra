@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.quadra</groupId>
+        <artifactId>quadra-recommend-adapter</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>quadra-recommend-adapter-in</artifactId>
+    <packaging>pom</packaging>
+
+    <name>quadra-recommend-adapter-in</name>
+    <description>Inbound Adapters (Driving Adapters) Parent Module</description>
+
+    <modules>
+        <module>quadra-recommend-adapter-in-web</module>
+    </modules>
+</project>

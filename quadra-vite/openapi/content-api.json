@@ -1,0 +1,476 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:18083",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Content",
+      "description": "内容相关接口"
+    }
+  ],
+  "paths": {
+    "/api/v1/content/videos": {
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "发布短视频",
+        "description": "发布短视频",
+        "operationId": "publishVideo",
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "description": "用户ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishVideoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/movements": {
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "发布图文动态",
+        "description": "发布图文动态，文本或媒体至少一项非空",
+        "operationId": "publishMovement",
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "description": "用户ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishMovementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/timeline": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "拉取时间线",
+        "description": "拉取用户的时间线Feed",
+        "operationId": "pullTimeline",
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "description": "用户ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页大小",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageResultTimelineItemDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/movements/{id}": {
+      "delete": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "删除图文动态",
+        "description": "逻辑删除图文动态",
+        "operationId": "deleteMovement",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "动态ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "description": "用户ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResultVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "PublishVideoRequest": {
+        "type": "object",
+        "description": "发布短视频请求",
+        "properties": {
+          "videoUrl": {
+            "type": "string",
+            "description": "视频URL"
+          },
+          "coverUrl": {
+            "type": "string",
+            "description": "封面URL"
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32",
+            "description": "视频时长(秒)"
+          },
+          "description": {
+            "type": "string",
+            "description": "视频描述"
+          }
+        }
+      },
+      "ResultLong": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "MediaInfo": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PublishMovementRequest": {
+        "type": "object",
+        "description": "发布图文动态请求",
+        "properties": {
+          "textContent": {
+            "type": "string",
+            "description": "文本内容"
+          },
+          "medias": {
+            "type": "array",
+            "description": "媒体列表",
+            "items": {
+              "$ref": "#/components/schemas/MediaInfo"
+            }
+          },
+          "longitude": {
+            "type": "number",
+            "description": "经度"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "纬度"
+          },
+          "locationName": {
+            "type": "string",
+            "description": "位置名称"
+          },
+          "state": {
+            "type": "integer",
+            "format": "int32",
+            "description": "审核状态：0-未审核，1-通过"
+          }
+        }
+      },
+      "PageResultTimelineItemDTO": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelineItemDTO"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageNo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultPageResultTimelineItemDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultTimelineItemDTO"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "TimelineItemDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "movementId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "authorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "authorNickname": {
+            "type": "string"
+          },
+          "authorAvatar": {
+            "type": "string"
+          },
+          "textContent": {
+            "type": "string"
+          },
+          "medias": {
+            "type": "string"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

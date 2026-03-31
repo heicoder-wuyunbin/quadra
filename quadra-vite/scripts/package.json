@@ -1,0 +1,9 @@
+{
+  "name": "quadra-vite-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "fetch-openapi": "tsx scripts/fetch-open-api.ts",
+    "generate-api": "openapi-typescript-codegen --input ./openapi/combined-api.json --output ./src/api --client axios"
+  }
+}

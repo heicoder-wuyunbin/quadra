@@ -1,0 +1,435 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:18082",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Social",
+      "description": "社交关系相关接口"
+    }
+  ],
+  "paths": {
+    "/api/v1/social/swipes": {
+      "post": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "滑动操作",
+        "description": "对用户进行 LIKE/DISLIKE 操作",
+        "operationId": "swipe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwipeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultMatchResultDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/social/follows": {
+      "post": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "关注用户",
+        "description": "关注指定用户",
+        "operationId": "follow",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/social/following": {
+      "get": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "获取关注列表",
+        "description": "分页查询当前用户关注的人列表",
+        "operationId": "getFollowing",
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页大小",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageResultFollowerDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/social/followers": {
+      "get": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "获取粉丝列表",
+        "description": "分页查询当前用户的粉丝列表",
+        "operationId": "getFollowers",
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页大小",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageResultFollowerDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/social/follows/{targetUserId}": {
+      "delete": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "取消关注",
+        "description": "取消关注指定用户",
+        "operationId": "unfollow",
+        "parameters": [
+          {
+            "name": "targetUserId",
+            "in": "path",
+            "description": "目标用户ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResultVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "SwipeRequest": {
+        "type": "object",
+        "description": "滑动请求参数",
+        "properties": {
+          "targetUserId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "目标用户ID",
+            "example": 1234567890
+          },
+          "likeType": {
+            "type": "string",
+            "description": "行为类型: LIKE-喜欢(右滑), DISLIKE-不喜欢(左滑)",
+            "example": "LIKE"
+          }
+        }
+      },
+      "MatchResultDTO": {
+        "type": "object",
+        "properties": {
+          "matched": {
+            "type": "boolean"
+          },
+          "matchId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "targetUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "matchTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResultMatchResultDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MatchResultDTO"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "FollowRequest": {
+        "type": "object",
+        "description": "关注请求参数",
+        "properties": {
+          "targetUserId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "目标用户ID",
+            "example": 1234567890
+          }
+        }
+      },
+      "FollowerDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "followedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResultFollowerDTO": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FollowerDTO"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageNo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultPageResultFollowerDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultFollowerDTO"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
