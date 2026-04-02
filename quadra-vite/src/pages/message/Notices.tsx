@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, Popconfirm, Breadcrumb, Modal, Descriptions, Badge } from 'antd';
 import { SearchOutlined, MailOutlined, SendOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -44,6 +44,16 @@ const Notices: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState<string | undefined>();
   const [detailVisible, setDetailVisible] = useState(false);
   const [currentNotice, setCurrentNotice] = useState<NoticeRecord | null>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    fixed: 'left',
+    columnWidth: 50,
+  };
 
   const fetchData = async (params: NoticeQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
@@ -376,6 +386,7 @@ const Notices: React.FC = () => {
           columns={columns}
           dataSource={data}
           rowKey="id"
+          rowSelection={rowSelection}
           loading={loading}
           pagination={{
             current: page,
