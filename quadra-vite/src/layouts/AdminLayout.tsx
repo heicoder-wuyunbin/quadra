@@ -26,21 +26,13 @@ const menuItems: MenuProps['items'] = [
     label: '仪表盘',
   },
   {
-    key: '/user',
+    key: '/users',
     icon: <UserOutlined />,
     label: '用户管理',
     children: [
       {
-        key: '/user/users',
+        key: '/users',
         label: '用户列表',
-      },
-      {
-        key: '/user/audit',
-        label: '用户审核',
-      },
-      {
-        key: '/user/blacklist',
-        label: '黑名单管理',
       },
     ],
   },

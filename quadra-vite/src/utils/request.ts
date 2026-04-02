@@ -1,146 +1,91 @@
 import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { message } from 'antd';
 
-// 扩展 Axios 配置类型
-type AuthScope = 'admin' | 'user' | 'none';
-
-interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
-  skipErrorHandler?: boolean;
-  authScope?: AuthScope;
-}
-
-const isAdminPath = (url?: string) => {
-  if (!url) return false;
-  return url.includes('/v1/system');
-};
-
-const isUserPath = (url?: string) => {
-  if (!url) return false;
-  return (
-    url.includes('/v1/users') ||
-    url.includes('/v1/content') ||
-    url.includes('/v1/social') ||
-    url.includes('/v1/interaction') ||
-    url.includes('/v1/interactions') ||
-    url.includes('/v1/recommend') ||
-    url.includes('/v1/recommends')
-  );
-};
-
-const inferAuthScope = (url?: string): AuthScope => {
-  if (isAdminPath(url)) return 'admin';
-  if (isUserPath(url)) return 'user';
-  return 'none';
-};
-
-const service: AxiosInstance = axios.create({
-  baseURL: '',
-  timeout: 15000,
+// 创建 axios 实例，所有请求都通过网关
+// 在开发环境中，Vite 会代理 /v1 路径到 http://localhost:18080
+const apiClient = axios.create({
+  baseURL: '/',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-service.interceptors.request.use(
+// 请求拦截器 - 添加认证 Token
+apiClient.interceptors.request.use(
   (config) => {
-    const typedConfig = config as CustomAxiosRequestConfig;
-    const scope = typedConfig.authScope ?? inferAuthScope(config.url);
-    if (scope === 'admin') {
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } else if (scope === 'user') {
-      const token = localStorage.getItem('user_access_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    // 默认添加 Content-Type
-    if (!config.headers['Content-Type'] && !config.headers['content-type']) {
-      config.headers['Content-Type'] = 'application/json';
+    console.log('发起请求:', config.method?.toUpperCase(), config.url);
+    // 从 localStorage 获取 accessToken
+    const accessToken = localStorage.getItem('access_token');
+    if (accessToken) {
+      // 添加 Bearer 前缀
+      config.headers.Authorization = `Bearer ${accessToken}`;
+      console.log('已添加 Token');
+    } else {
+      console.log('未找到 Token，使用公开访问');
     }
     return config;
   },
   (error) => {
+    console.error('请求拦截器错误:', error);
     return Promise.reject(error);
   }
 );
 
-service.interceptors.response.use(
-  (response: AxiosResponse) => {
-    const res = response.data;
-    
-    // 处理成功响应（支持多种返回格式）
-    const isSuccess = res.success === true || res.code === 'SUCCESS' || res.code === 20000 || res.code === 200;
-    
-    if (!isSuccess) {
-      // 如果配置了 skipErrorHandler，则不显示错误提示
-      const config = response.config as unknown as CustomAxiosRequestConfig;
-      if (!config.skipErrorHandler) {
-        message.error(res.message || 'Error');
-      }
-      return Promise.reject(new Error(res.message || 'Error'));
-    }
-    return res;
+// 响应拦截器 - 处理错误
+apiClient.interceptors.response.use(
+  (response) => {
+    // 返回响应数据，这样 response.data 就是 API 返回的内容
+    return response;
   },
   (error) => {
     if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          // 只在非登录请求时跳转，且确保只在登录态有效时跳转
-          {
-            const config = error.config as unknown as CustomAxiosRequestConfig;
-            const scope = config.authScope ?? inferAuthScope(config.url);
-            if (scope === 'admin' && !error.config?.url?.includes('/login')) {
-              const token = localStorage.getItem('access_token');
-              if (token) {
-                if (!config.skipErrorHandler) {
-                  message.error('登录已过期，请重新登录');
-                }
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                window.location.href = '/login';
-              }
-            } else if (!config.skipErrorHandler) {
-              message.error('未授权访问');
-            }
+      const { status, data } = error.response;
+      const requestUrl: string = error.config?.url || '';
+      const isAdminApi = requestUrl.startsWith('/v1/system');
+      
+      if (status === 401) {
+        // 仅对管理端接口触发强制登出，避免普通用户接口误伤
+        if (isAdminApi) {
+          console.error('认证失败，请重新登录');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+
+          // 只有在已登录的情况下才跳转，避免循环跳转
+          const currentPath = window.location.pathname;
+          if (currentPath !== '/login') {
+            // 使用 setTimeout 避免在请求拦截器中直接跳转
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 100);
           }
-          break;
-        case 403:
-          {
-            const config = error.config as unknown as CustomAxiosRequestConfig;
-            if (!config.skipErrorHandler) {
-              message.error('Forbidden');
-            }
-          }
-          break;
-        case 404:
-          {
-            const config = error.config as unknown as CustomAxiosRequestConfig;
-            if (!config.skipErrorHandler) {
-              message.error('Not Found');
-            }
-          }
-          break;
-        case 500:
-          // 500 错误不显示 message，只记录日志
-          console.error('Server error:', error.response.data);
-          break;
-        default:
-          {
-            const config = error.config as unknown as CustomAxiosRequestConfig;
-            if (!config.skipErrorHandler) {
-              message.error(error.response.data?.message || 'Error');
-            }
-          }
+        }
+        return Promise.reject({ response: error.response, message: data?.message || '未授权' });
+      } else if (status === 403) {
+        console.error('没有权限访问该资源');
+        return Promise.reject({ response: error.response, message: '没有权限访问该资源' });
+      } else if (status === 404) {
+        console.error('请求的资源不存在');
+        return Promise.reject({ response: error.response, message: '请求的资源不存在' });
+      } else if (status >= 500) {
+        console.error('服务器错误');
+        return Promise.reject({ response: error.response, message: '服务器错误' });
       }
+      
+      // 抛出包含响应数据的错误
+      return Promise.reject({ response: error.response, message: data?.message || error.message });
+    } else if (error.request) {
+      console.error('网络错误，请检查网络连接');
+      return Promise.reject({ message: '网络错误，请检查网络连接' });
     } else {
-      // 网络错误，如果是 abort 则不显示错误
-      if (error.code !== 'ERR_CANCELED' && !error.message.includes('abort')) {
-        message.error('Network Error');
-      }
+      console.error('请求错误:', error.message);
+      return Promise.reject({ message: error.message });
     }
-    return Promise.reject(error);
   }
 );
 
-export default service;
+// 通用请求方法
+const request = async (config: any) => {
+  return apiClient.request(config);
+};
+
+export default request;

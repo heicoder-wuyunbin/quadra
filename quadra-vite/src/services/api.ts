@@ -151,14 +151,14 @@ export const adminApi = {
     });
   },
 
-  getUserDetail: (id: number) => {
+  getUserDetail: (id: string) => {
     return request<any, ApiResult<UserDetailDTO>>({
       url: `/v1/system/users/${id}`,
       method: 'get',
     });
   },
 
-  updateUserStatus: (id: number, status: number) => {
+  updateUserStatus: (id: string, status: number) => {
     return request<any, ApiResult<void>>({
       url: `/v1/system/users/${id}/status`,
       method: 'put',
@@ -166,7 +166,7 @@ export const adminApi = {
     });
   },
 
-  resetUserPassword: (id: number) => {
+  resetUserPassword: (id: string) => {
     return request<any, ApiResult<{ newPassword: string }>>({
       url: `/v1/system/users/${id}/reset-password`,
       method: 'post',
