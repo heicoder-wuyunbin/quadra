@@ -283,7 +283,7 @@ const Admins: React.FC = () => {
           rowKey="id"
           rowSelection={rowSelection}
           loading={loading}
-          scroll={{ x: 1400 }}
+          scroll={{ x: 'max-content' }}
           size="middle"
           pagination={{
             current: page,

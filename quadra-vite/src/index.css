@@ -82,3 +82,26 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* 隐藏表格水平滚动条但保留滚动功能 */
+.ant-table-wrapper {
+  overflow-x: auto !important;
+}
+
+.ant-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ant-table-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.ant-table-wrapper::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* 防止表格内容溢出导致的晃动 */
+.ant-table-content {
+  overflow-x: auto !important;
+}

@@ -314,26 +314,27 @@ const Users: React.FC = () => {
         )}
 
         <Table
-           rowKey="id"
-           rowSelection={rowSelection}
-           loading={loading}
-           dataSource={data}
-           columns={columns}
-           pagination={{
-             current: page,
-             pageSize,
-             total,
-             showSizeChanger: true,
-             showTotal: (total) => `共 ${total} 条`,
-             pageSizeOptions: ['10', '20', '50'],
-             onChange: (page, pageSize) => {
-               setPage(page);
-               setPageSize(pageSize);
-             },
-           }}
-           scroll={{ x: 1400 }}
-           size="middle"
-         />
+            rowKey="id"
+            rowSelection={rowSelection}
+            loading={loading}
+            dataSource={data}
+            columns={columns}
+            pagination={{
+              current: page,
+              pageSize,
+              total,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+              pageSizeOptions: ['10', '20', '50'],
+              onChange: (page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              },
+            }}
+            scroll={{ x: 'max-content' }}
+            size="middle"
+            style={{ overflow: 'hidden' }}
+          />
       </Card>
 
       <Modal

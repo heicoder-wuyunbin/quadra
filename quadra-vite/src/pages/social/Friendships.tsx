@@ -375,7 +375,7 @@ const Friendships: React.FC = () => {
               fetchData({ page, size: pageSize });
             },
           }}
-          scroll={{ x: 1500 }}
+          scroll={{ x: 'max-content' }}
           size="middle"
         />
       </Card>

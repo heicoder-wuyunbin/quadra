@@ -412,7 +412,7 @@ const Reports: React.FC = () => {
               fetchData({ page, size: pageSize });
             },
           }}
-          scroll={{ x: 1400 }}
+          scroll={{ x: 'max-content' }}
           size="middle"
         />
       </Card>
