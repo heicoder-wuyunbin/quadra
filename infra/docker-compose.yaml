@@ -2,6 +2,30 @@ networks:
   app_net:
     driver: bridge
 services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - TZ=Asia/Shanghai
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_general_ci
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - "3306:3306"
+    privileged: true
+    command:
+      - "--server-id=1"
+      - "--log-bin=mysql-bin"
+      - "--binlog-format=row"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_net
+    restart: always
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:4.0.6-management
