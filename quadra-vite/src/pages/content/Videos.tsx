@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Popconfirm, Modal, Select, Breadcrumb } from 'antd';
 import { SearchOutlined, PlayCircleOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -42,6 +42,16 @@ const Videos: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<number | undefined>();
   const [previewVisible, setPreviewVisible] = useState(false);
   const [currentVideo, setCurrentVideo] = useState<string>('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    fixed: 'left',
+    columnWidth: 50,
+  };
 
   const fetchData = async (params: VideoQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
@@ -343,6 +353,7 @@ const Videos: React.FC = () => {
           columns={columns}
           dataSource={data}
           rowKey="id"
+          rowSelection={rowSelection}
           loading={loading}
           pagination={{
             current: page,

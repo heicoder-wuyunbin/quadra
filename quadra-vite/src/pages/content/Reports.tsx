@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Popconfirm, Select, Modal, Descriptions, Breadcrumb } from 'antd';
 import { SearchOutlined, CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -46,6 +46,16 @@ const Reports: React.FC = () => {
   const [targetTypeFilter, setTargetTypeFilter] = useState<string | undefined>();
   const [detailVisible, setDetailVisible] = useState(false);
   const [currentReport, setCurrentReport] = useState<ReportRecord | null>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    fixed: 'left',
+    columnWidth: 50,
+  };
 
   const fetchData = async (params: ReportQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
@@ -387,6 +397,7 @@ const Reports: React.FC = () => {
           columns={columns}
           dataSource={data}
           rowKey="id"
+          rowSelection={rowSelection}
           loading={loading}
           pagination={{
             current: page,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, DatePicker, Badge, Breadcrumb } from 'antd';
 import { SearchOutlined, HeartOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -42,6 +42,16 @@ const Matches: React.FC = () => {
   const [searchUserId, setSearchUserId] = useState('');
   const [matchTypeFilter, setMatchTypeFilter] = useState<string | undefined>();
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    fixed: 'left',
+    columnWidth: 50,
+  };
 
   const fetchData = async (params: MatchQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
@@ -337,6 +347,7 @@ const Matches: React.FC = () => {
           columns={columns}
           dataSource={data}
           rowKey="id"
+          rowSelection={rowSelection}
           loading={loading}
           pagination={{
             current: page,

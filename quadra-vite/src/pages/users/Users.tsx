@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Card, Typography, Table, Form, Input, Select, Button, Space, Tag, Modal, Descriptions, message, Popconfirm, Breadcrumb } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { useEffect, useState, Key } from 'react';
+import { Card, Typography, Table, Form, Input, Select, Button, Space, Tag, Modal, Descriptions, message, Popconfirm, Breadcrumb, Divider } from 'antd';
+import { SearchOutlined, DeleteOutlined, CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
 import { adminApi } from '@/services/api';
 import type { UserAdminDTO, UserDetailDTO, PageResult } from '@/services/types';
 import dayjs from 'dayjs';
@@ -23,6 +23,7 @@ const Users: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailData, setDetailData] = useState<UserDetailDTO | null>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -109,6 +110,47 @@ const Users: React.FC = () => {
         });
       },
     });
+  };
+
+  const handleBatchStatusChange = async (status: number) => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请选择要操作的用户');
+      return;
+    }
+
+    try {
+      await adminApi.batchUpdateUserStatus(selectedRowKeys as number[], status);
+      message.success(status === 1 ? '已批量启用' : '已批量禁用');
+      setSelectedRowKeys([]);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to batch update status:', error);
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请选择要删除的用户');
+      return;
+    }
+
+    try {
+      await adminApi.batchDeleteUsers(selectedRowKeys as number[]);
+      message.success('批量删除成功');
+      setSelectedRowKeys([]);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to batch delete:', error);
+    }
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    fixed: 'left',
+    columnWidth: 50,
   };
 
   const columns = [
@@ -241,26 +283,57 @@ const Users: React.FC = () => {
           </Form>
         </div>
 
+        {selectedRowKeys.length > 0 && (
+          <div style={{ padding: '12px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
+            <Space>
+              <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>已选择 {selectedRowKeys.length} 项</span>
+              <Divider type="vertical" />
+              <Button 
+                danger
+                size="small"
+                onClick={() => handleBatchStatusChange(0)}
+              >
+                批量禁用
+              </Button>
+              <Button 
+                size="small"
+                onClick={() => handleBatchStatusChange(1)}
+              >
+                批量启用
+              </Button>
+              <Button 
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={handleBatchDelete}
+              >
+                批量删除
+              </Button>
+            </Space>
+          </div>
+        )}
+
         <Table
-          rowKey="id"
-          loading={loading}
-          columns={columns}
-          dataSource={data}
-          pagination={{
-            current: page,
-            pageSize,
-            total,
-            showSizeChanger: true,
-            showTotal: (total) => `共 ${total} 条`,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            onChange: (page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize ?? 10);
-            },
-          }}
-          scroll={{ x: 1200 }}
-          size="middle"
-        />
+           rowKey="id"
+           rowSelection={rowSelection}
+           loading={loading}
+           dataSource={data}
+           columns={columns}
+           pagination={{
+             current: page,
+             pageSize,
+             total,
+             showSizeChanger: true,
+             showTotal: (total) => `共 ${total} 条`,
+             pageSizeOptions: ['10', '20', '50'],
+             onChange: (page, pageSize) => {
+               setPage(page);
+               setPageSize(pageSize);
+             },
+           }}
+           scroll={{ x: 1400 }}
+           size="middle"
+         />
       </Card>
 
       <Modal
