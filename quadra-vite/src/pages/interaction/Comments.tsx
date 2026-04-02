@@ -45,6 +45,14 @@ const Comments: React.FC = () => {
   const [currentComment, setCurrentComment] = useState<CommentRecord | null>(null);
 
   const fetchData = async (params: CommentQueryParams = { page, size: pageSize }) => {
+    // 检查是否已登录
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      console.log('未登录，不请求数据');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       // TODO: 替换为实际的 API 调用

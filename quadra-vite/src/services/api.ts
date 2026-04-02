@@ -151,14 +151,14 @@ export const adminApi = {
     });
   },
 
-  getUserDetail: (id: number) => {
+  getUserDetail: (id: string) => {
     return request<any, ApiResult<UserDetailDTO>>({
       url: `/v1/system/users/${id}`,
       method: 'get',
     });
   },
 
-  updateUserStatus: (id: number, status: number) => {
+  updateUserStatus: (id: string, status: number) => {
     return request<any, ApiResult<void>>({
       url: `/v1/system/users/${id}/status`,
       method: 'put',
@@ -166,74 +166,10 @@ export const adminApi = {
     });
   },
 
-  resetUserPassword: (id: number) => {
+  resetUserPassword: (id: string) => {
     return request<any, ApiResult<{ newPassword: string }>>({
       url: `/v1/system/users/${id}/reset-password`,
       method: 'post',
-    });
-  },
-};
-
-// ==================== 用户管理 API ====================
-export const userApi = {
-  // 获取用户列表
-  getUsers: (params: { page: number; size: number; mobile?: string; status?: number }) => {
-    return request<any, ApiResult<PageResult<UserAdminDTO>>>({
-      url: '/v1/admin/users',
-      method: 'get',
-      params,
-    });
-  },
-
-  // 获取用户详情
-  getUserDetail: (id: string) => {
-    return request<any, ApiResult<UserDetailDTO>>({
-      url: `/v1/admin/users/${id}`,
-      method: 'get',
-    });
-  },
-
-  // 更新用户状态
-  updateUserStatus: (id: string, status: number) => {
-    return request<any, ApiResult<void>>({
-      url: `/v1/admin/users/${id}/status`,
-      method: 'put',
-      data: { status },
-    });
-  },
-
-  // 重置用户密码
-  resetUserPassword: (id: string) => {
-    return request<any, ApiResult<{ newPassword: string }>>({
-      url: `/v1/admin/users/${id}/reset-password`,
-      method: 'post',
-    });
-  },
-
-  // 获取黑名单列表
-  getBlacklist: (pageNo: number, pageSize: number, mobile?: string) => {
-    return request<any, ApiResult<PageResult<any>>>({
-      url: '/v1/blacklists',
-      method: 'get',
-      params: { pageNo, pageSize, mobile },
-    });
-  },
-
-  // 添加到黑名单
-  addToBlacklist: (targetUserId: number, reason?: string) => {
-    return request<any, ApiResult<void>>({
-      url: '/v1/blacklists',
-      method: 'post',
-      data: { targetUserId, reason },
-    });
-  },
-
-  // 从黑名单移除
-  removeFromBlacklist: (targetUserId: number) => {
-    return request<any, ApiResult<void>>({
-      url: '/v1/blacklists',
-      method: 'delete',
-      data: { targetUserId },
     });
   },
 };

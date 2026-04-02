@@ -2,12 +2,10 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AdminLayout from '@/layouts/AdminLayout';
 import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // 用户管理
-import Users from '@/pages/user/Users';
-import UserProfile from '@/pages/user/UserProfile';
-import Audit from '@/pages/user/Audit';
-import Blacklist from '@/pages/user/Blacklist';
+import Users from '@/pages/users/Users';
 
 // 内容审核
 import Movements from '@/pages/content/Movements';
@@ -55,7 +53,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -66,25 +68,8 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: 'user',
-        children: [
-          {
-            path: 'users',
-            element: <Users />,
-          },
-          {
-            path: 'profile/:id',
-            element: <UserProfile />,
-          },
-          {
-            path: 'audit',
-            element: <Audit />,
-          },
-          {
-            path: 'blacklist',
-            element: <Blacklist />,
-          },
-        ],
+        path: 'users',
+        element: <Users />,
       },
       {
         path: 'content',

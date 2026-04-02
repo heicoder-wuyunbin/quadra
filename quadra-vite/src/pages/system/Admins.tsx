@@ -37,6 +37,14 @@ const Admins: React.FC = () => {
   }, [page, pageSize]);
 
   const fetchData = async () => {
+    // 检查是否已登录
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      console.log('未登录，不请求数据');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await adminApi.listAdmins({ page, size: pageSize });

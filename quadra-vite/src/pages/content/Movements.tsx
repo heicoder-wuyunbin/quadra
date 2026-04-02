@@ -43,6 +43,14 @@ const Movements: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const fetchData = async (params: MovementQueryParams = { page, size: pageSize }) => {
+    // 检查是否已登录
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      console.log('未登录，不请求数据');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       // TODO: 替换为实际的 API 调用

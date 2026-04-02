@@ -46,6 +46,14 @@ const Notices: React.FC = () => {
   const [currentNotice, setCurrentNotice] = useState<NoticeRecord | null>(null);
 
   const fetchData = async (params: NoticeQueryParams = { page, size: pageSize }) => {
+    // 检查是否已登录
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      console.log('未登录，不请求数据');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       // TODO: 替换为实际的 API 调用
