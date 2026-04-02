@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, Popconfirm, Badge, Breadcrumb } from 'antd';
 import { SearchOutlined, UsergroupAddOutlined, DeleteOutlined, BlockOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -39,6 +39,16 @@ const Friendships: React.FC = () => {
   const [searchUserId, setSearchUserId] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [relationshipTypeFilter, setRelationshipTypeFilter] = useState<string | undefined>();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+    fixed: 'left',
+    columnWidth: 50,
+  };
 
   const fetchData = async (params: FriendshipQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
