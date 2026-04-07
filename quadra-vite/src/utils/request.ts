@@ -47,16 +47,26 @@ apiClient.interceptors.response.use(
         // 仅对管理端接口触发强制登出，避免普通用户接口误伤
         if (isAdminApi) {
           console.error('认证失败，请重新登录');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+          
+          // 检查是否是刚刚登录后的请求
+          const loginTime = localStorage.getItem('login_time');
+          const currentTime = Date.now();
+          const isRecentlyLoggedIn = loginTime && (currentTime - parseInt(loginTime)) < 5000; // 5秒内视为刚刚登录
+          
+          if (!isRecentlyLoggedIn) {
+            // 不是刚刚登录的请求，才清除token并跳转
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('login_time');
 
-          // 只有在已登录的情况下才跳转，避免循环跳转
-          const currentPath = window.location.pathname;
-          if (currentPath !== '/login') {
-            // 使用 setTimeout 避免在请求拦截器中直接跳转
-            setTimeout(() => {
-              window.location.href = '/login';
-            }, 100);
+            // 只有在已登录的情况下才跳转，避免循环跳转
+            const currentPath = window.location.pathname;
+            if (currentPath !== '/login') {
+              // 使用 setTimeout 避免在请求拦截器中直接跳转
+              setTimeout(() => {
+                window.location.href = '/login';
+              }, 100);
+            }
           }
         }
         return Promise.reject({ response: error.response, message: data?.message || '未授权' });
