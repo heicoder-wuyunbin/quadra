@@ -3,6 +3,7 @@ import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Sele
 import { SearchOutlined, MailOutlined, SendOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -34,6 +35,7 @@ interface NoticeQueryParams {
 }
 
 const Notices: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<NoticeRecord[]>([]);
   const [total, setTotal] = useState(0);
@@ -374,7 +376,7 @@ const Notices: React.FC = () => {
                   搜索
                 </Button>
                 <Button onClick={handleReset}>重置</Button>
-                <Button type="primary" icon={<SendOutlined />}>
+                <Button type="primary" icon={<SendOutlined />} onClick={() => navigate('/message/send')}>
                   发送站内信
                 </Button>
               </Space>

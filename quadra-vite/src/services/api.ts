@@ -14,6 +14,21 @@ import type {
   PageResult,
   UserAdminDTO,
   UserDetailDTO,
+  NoticeDTO,
+  NoticeQueryParams,
+  SendNoticeRequest,
+  MessageTemplateDTO,
+  MessageTemplateQueryParams,
+  AnnouncementDTO,
+  AnnouncementQueryParams,
+  PushRecordDTO,
+  PushRecordQueryParams,
+  OperationLogDTO,
+  LoginLogDTO,
+  ErrorLogDTO,
+  ApiStatDTO,
+  SlowSqlDTO,
+  LogQueryParams,
 } from './types';
 
 export const adminApi = {
@@ -204,6 +219,168 @@ export const socialApi = {
   getRecommendUsers: (params?: { pageNum?: number; pageSize?: number }) => {
     return request({
       url: '/v1/recommends/users',
+      method: 'get',
+      params,
+    });
+  },
+};
+
+// ---------------------------
+// 消息推送（管理端）
+// ---------------------------
+export const messageApi = {
+  listNotices: (params?: NoticeQueryParams) => {
+    return request<any, ApiResult<PageResult<NoticeDTO>>>({
+      url: '/v1/message/admin/notices',
+      method: 'get',
+      params,
+    });
+  },
+
+  sendNotice: (data: SendNoticeRequest) => {
+    return request<any, ApiResult<number>>({
+      url: '/v1/message/admin/notices',
+      method: 'post',
+      data,
+    });
+  },
+
+  deleteNotice: (id: number) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/message/admin/notices/${id}`,
+      method: 'delete',
+    });
+  },
+
+  listTemplates: (params?: MessageTemplateQueryParams) => {
+    return request<any, ApiResult<PageResult<MessageTemplateDTO>>>({
+      url: '/v1/message/admin/templates',
+      method: 'get',
+      params,
+    });
+  },
+
+  createTemplate: (data: Omit<MessageTemplateDTO, 'id' | 'createdAt' | 'updatedAt'>) => {
+    return request<any, ApiResult<number>>({
+      url: '/v1/message/admin/templates',
+      method: 'post',
+      data,
+    });
+  },
+
+  updateTemplate: (id: number, data: Partial<Omit<MessageTemplateDTO, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/message/admin/templates/${id}`,
+      method: 'put',
+      data,
+    });
+  },
+
+  listAnnouncements: (params?: AnnouncementQueryParams) => {
+    return request<any, ApiResult<PageResult<AnnouncementDTO>>>({
+      url: '/v1/message/admin/announcements',
+      method: 'get',
+      params,
+    });
+  },
+
+  createAnnouncement: (data: Omit<AnnouncementDTO, 'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'publisherName'>) => {
+    return request<any, ApiResult<number>>({
+      url: '/v1/message/admin/announcements',
+      method: 'post',
+      data,
+    });
+  },
+
+  updateAnnouncement: (
+    id: number,
+    data: Partial<Omit<AnnouncementDTO, 'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'publisherName'>>
+  ) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/message/admin/announcements/${id}`,
+      method: 'put',
+      data,
+    });
+  },
+
+  publishAnnouncement: (id: number) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/message/admin/announcements/${id}/publish`,
+      method: 'put',
+    });
+  },
+
+  offlineAnnouncement: (id: number) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/message/admin/announcements/${id}/offline`,
+      method: 'put',
+    });
+  },
+
+  toggleAnnouncementTop: (id: number, isTop: boolean) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/message/admin/announcements/${id}/top`,
+      method: 'put',
+      data: { isTop },
+    });
+  },
+
+  listRecords: (params?: PushRecordQueryParams) => {
+    return request<any, ApiResult<PageResult<PushRecordDTO>>>({
+      url: '/v1/message/admin/records',
+      method: 'get',
+      params,
+    });
+  },
+};
+
+// ---------------------------
+// 日志监控（管理端）
+// ---------------------------
+export const logApi = {
+  getOperationLogs: (params?: LogQueryParams) => {
+    return request<any, ApiResult<PageResult<OperationLogDTO>>>({
+      url: '/v1/log/operation',
+      method: 'get',
+      params,
+    });
+  },
+
+  getLoginLogs: (params?: LogQueryParams) => {
+    return request<any, ApiResult<PageResult<LoginLogDTO>>>({
+      url: '/v1/log/login',
+      method: 'get',
+      params,
+    });
+  },
+
+  getErrorLogs: (params?: LogQueryParams & { level?: string; service?: string; handled?: boolean }) => {
+    return request<any, ApiResult<PageResult<ErrorLogDTO>>>({
+      url: '/v1/log/error',
+      method: 'get',
+      params,
+    });
+  },
+
+  markErrorHandled: (id: string, handled = true) => {
+    return request<any, ApiResult<void>>({
+      url: `/v1/log/error/${id}/handled`,
+      method: 'put',
+      data: { handled },
+    });
+  },
+
+  getApiStats: (params?: LogQueryParams) => {
+    return request<any, ApiResult<PageResult<ApiStatDTO>>>({
+      url: '/v1/log/api',
+      method: 'get',
+      params,
+    });
+  },
+
+  getSlowSql: (params?: LogQueryParams) => {
+    return request<any, ApiResult<PageResult<SlowSqlDTO>>>({
+      url: '/v1/log/slow-sql',
       method: 'get',
       params,
     });
