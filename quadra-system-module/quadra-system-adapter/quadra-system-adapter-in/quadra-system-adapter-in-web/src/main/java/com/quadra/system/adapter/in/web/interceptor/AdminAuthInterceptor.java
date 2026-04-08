@@ -35,6 +35,7 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
                 Long adminId = parseAdminTokenUseCase.parseAdminId(token);
                 if (adminId != null) {
                     AdminContext.setAdminId(adminId);
+                    request.setAttribute("adminId", adminId);
                     return true;
                 }
             } catch (Exception ignored) {

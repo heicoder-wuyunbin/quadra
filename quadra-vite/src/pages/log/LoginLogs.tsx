@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Breadcrumb, Button, Card, DatePicker, Descriptions, Form, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
+import { useEffect, useState } from 'react';
+import { Breadcrumb, Button, Card, DatePicker, Descriptions, Form, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { logApi } from '@/services/api';
-import type { LoginLogDTO, LogQueryParams, PageResult } from '@/services/types';
+import type { LoginLogDTO, LogQueryParams } from '@/services/types';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -19,33 +19,6 @@ const LoginLogs: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [current, setCurrent] = useState<LoginLogDTO | null>(null);
 
-  const mockData: LoginLogDTO[] = useMemo(
-    () => [
-      {
-        id: 'lg_10001',
-        adminId: 1,
-        adminName: '系统管理员',
-        ip: '127.0.0.1',
-        location: '本地',
-        userAgent: 'Mozilla/5.0',
-        status: 'SUCCESS',
-        createdAt: '2024-01-15 09:00:00',
-      },
-      {
-        id: 'lg_10002',
-        adminId: 1,
-        adminName: '系统管理员',
-        ip: '127.0.0.1',
-        location: '本地',
-        userAgent: 'Mozilla/5.0',
-        status: 'FAILED',
-        reason: '密码错误',
-        createdAt: '2024-01-15 12:00:00',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,33 +28,28 @@ const LoginLogs: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockData);
-      setTotal(mockData.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await logApi.getLoginLogs({
+      const payload = await logApi.getLoginLogs({
         page,
         size: pageSize,
         startTime: query.startTime,
         endTime: query.endTime,
         keyword: query.keyword,
       });
-      const payload = (res.data?.data || res.data) as PageResult<LoginLogDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('getLoginLogs failed, fallback mock:', error);
-      const filtered = mockData.filter((r) => {
-        if (query.adminName && !r.adminName.includes(query.adminName)) return false;
-        if (query.status && r.status !== query.status) return false;
-        return true;
-      });
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('getLoginLogs failed:', error);
+      message.error((error as Error)?.message || '获取登录日志失败');
+      setData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }

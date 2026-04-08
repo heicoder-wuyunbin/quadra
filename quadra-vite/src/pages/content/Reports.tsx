@@ -1,8 +1,10 @@
-import { useState, useEffect, Key } from 'react';
-import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Popconfirm, Select, Modal, Descriptions, Breadcrumb } from 'antd';
+import { useState, useEffect, useCallback, Key } from 'react';
+import { Card, Table, Typography, Space, Button, Form, message, Tag, Popconfirm, Select, Modal, Descriptions, Breadcrumb } from 'antd';
 import { SearchOutlined, CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { contentAdminApi } from '@/services/api';
+import type { PageResult } from '@/services/types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -57,7 +59,7 @@ const Reports: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: ReportQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: ReportQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -68,76 +70,19 @@ const Reports: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await contentApi.getReports(params);
-      // 模拟数据
-      const mockData: ReportRecord[] = [
-        {
-          id: 1,
-          reportType: '色情',
-          reportReason: '内容涉及色情低俗',
-          reportDetail: '该用户发布的动态包含不雅内容',
-          targetType: 'MOVEMENT',
-          targetId: 1001,
-          targetContent: '今天天气真好，出去踏青了🌸',
-          reporterId: 10003,
-          reporterNickname: '王五',
-          reportedUserId: 10001,
-          reportedUserNickname: '张三',
-          status: 0,
-          createdAt: '2024-01-15 14:30:00',
-        },
-        {
-          id: 2,
-          reportType: '谩骂',
-          reportReason: '恶意攻击他人',
-          reportDetail: '该用户在评论中辱骂他人',
-          targetType: 'COMMENT',
-          targetId: 2001,
-          targetContent: '你这个人真讨厌',
-          reporterId: 10004,
-          reporterNickname: '赵六',
-          reportedUserId: 10002,
-          reportedUserNickname: '李四',
-          status: 1,
-          handlerId: 1,
-          handlerNickname: '超级管理员',
-          handleResult: '已删除评论并警告用户',
-          createdAt: '2024-01-15 13:20:00',
-          handledAt: '2024-01-15 15:00:00',
-        },
-        {
-          id: 3,
-          reportType: '诈骗',
-          reportReason: '涉嫌诈骗行为',
-          reportDetail: '该用户要求转账',
-          targetType: 'USER',
-          targetId: 10005,
-          reporterId: 10006,
-          reporterNickname: '孙七',
-          reportedUserId: 10005,
-          reportedUserNickname: '周八',
-          status: 2,
-          handlerId: 1,
-          handlerNickname: '超级管理员',
-          handleResult: '已封禁用户账号',
-          createdAt: '2024-01-15 12:00:00',
-          handledAt: '2024-01-15 14:00:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(mockData.length);
+      const payload = (await contentAdminApi.listReports(params)) as PageResult<ReportRecord>;
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取举报列表失败');
+      message.error((error as Error)?.message || '获取举报列表失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -160,21 +105,21 @@ const Reports: React.FC = () => {
 
   const handleApprove = async (id: number) => {
     try {
-      // TODO: 调用处理通过 API
+      await contentAdminApi.handleReport(id);
       message.success('已处理举报');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
   const handleReject = async (id: number) => {
     try {
-      // TODO: 调用忽略举报 API
+      await contentAdminApi.ignoreReport(id);
       message.success('已忽略举报');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -285,7 +230,7 @@ const Reports: React.FC = () => {
       key: 'action',
       width: 200,
       fixed: 'right',
-      render: (_: any, record: ReportRecord) => (
+      render: (_: unknown, record: ReportRecord) => (
         <Space size="small">
           <Button 
             type="link" 

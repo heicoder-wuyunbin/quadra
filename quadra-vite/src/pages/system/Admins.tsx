@@ -1,5 +1,5 @@
-import { useState, useEffect, Key } from 'react';
-import { Table, Card, Button, Modal, Form, Input, message, Tag, Space, Divider, Breadcrumb, Popconfirm, Switch } from 'antd';
+import { useState, useEffect, useCallback, Key } from 'react';
+import { Table, Card, Button, Modal, Form, Input, message, Tag, Space, Divider, Breadcrumb, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, LockOutlined, StopOutlined, CheckCircleOutlined, DeleteOutlined, HomeOutlined } from '@ant-design/icons';
 import { adminApi } from '@/services/api';
 import type { AdminDTO, CreateAdminRequest } from '@/services/types';
@@ -32,11 +32,7 @@ const Admins: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    fetchData();
-  }, [page, pageSize]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -48,15 +44,19 @@ const Admins: React.FC = () => {
     setLoading(true);
     try {
       const res = await adminApi.listAdmins({ page, size: pageSize });
-      const records = res.data.records || res.data.list || [];
+      const records = res.records || res.list || [];
       setData(records);
-      setTotal(res.data.total || 0);
+      setTotal(res.total || 0);
     } catch (error) {
       console.error('Failed to fetch admins:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleCreate = () => {
     form.resetFields();
@@ -79,7 +79,7 @@ const Admins: React.FC = () => {
     try {
       const values = await form.validateFields();
       if (isEditMode && editingAdmin) {
-        await adminApi.updateAdmin(editingAdmin.id!, values);
+        await adminApi.updateAdmin(editingAdmin.adminId!, values);
         message.success('更新成功');
       } else {
         await adminApi.createAdmin(values as CreateAdminRequest);
@@ -102,7 +102,7 @@ const Admins: React.FC = () => {
     try {
       const values = await passwordForm.validateFields();
       if (editingAdmin) {
-        await adminApi.updateAdminPassword(editingAdmin.id, values);
+        await adminApi.updateAdminPassword(editingAdmin.adminId, values);
         message.success('密码修改成功');
         setPasswordModalVisible(false);
       }
@@ -113,7 +113,7 @@ const Admins: React.FC = () => {
 
   const handleStatusChange = async (record: AdminDTO, newStatus: number) => {
     try {
-      await adminApi.updateAdminStatus(record.id, newStatus);
+      await adminApi.updateAdminStatus(record.adminId, newStatus);
       message.success(newStatus === 1 ? '已启用' : '已禁用');
       fetchData();
     } catch (error) {
@@ -159,7 +159,7 @@ const Admins: React.FC = () => {
       setSelectedRowKeys(newSelectedRowKeys);
     },
     getCheckboxProps: (record: AdminDTO) => ({
-      disabled: record.id === 1,
+      disabled: record.adminId === 1,
       name: record.username,
     }),
     fixed: 'left',
@@ -169,8 +169,8 @@ const Admins: React.FC = () => {
   const columns = [
     {
       title: '管理员 ID',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'adminId',
+      key: 'adminId',
       width: 150,
       fixed: 'left',
     },
@@ -207,7 +207,7 @@ const Admins: React.FC = () => {
       key: 'action',
       width: 280,
       fixed: 'right',
-      render: (_: any, record: AdminDTO) => (
+      render: (_: unknown, record: AdminDTO) => (
         <Space size="small">
           <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             编辑
@@ -215,7 +215,7 @@ const Admins: React.FC = () => {
           <Button type="link" icon={<LockOutlined />} onClick={() => handlePasswordChange(record)}>
             密码
           </Button>
-          {record.id !== 1 && (
+          {record.adminId !== 1 && (
             <Popconfirm
               title={record.status === 1 ? "确定要禁用此管理员吗？" : "确定要启用此管理员吗？"}
               onConfirm={() => handleStatusChange(record, record.status === 1 ? 0 : 1)}
@@ -280,7 +280,7 @@ const Admins: React.FC = () => {
         <Table
           columns={columns}
           dataSource={data}
-          rowKey="id"
+          rowKey="adminId"
           rowSelection={rowSelection}
           loading={loading}
           scroll={{ x: 'max-content' }}

@@ -130,6 +130,30 @@ CREATE TABLE `sys_operate_log` (
   KEY `idx_admin_time` (`admin_id`, `created_at` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='后台管理员操作审计日志表';
 
+-- 6.1 管理后台接口访问日志（用于排查 401/404/耗时等问题，可扩展到全链路）
+DROP TABLE IF EXISTS `sys_request_log`;
+CREATE TABLE `sys_request_log` (
+  `id` bigint NOT NULL COMMENT '主键',
+  `service` varchar(50) NOT NULL DEFAULT 'quadra-system' COMMENT '来源服务（如 quadra-system / quadra-gateway）',
+  `trace_id` varchar(64) DEFAULT NULL COMMENT '链路ID（requestId/traceId）',
+  `admin_id` bigint DEFAULT NULL COMMENT '管理员ID（若已鉴权通过）',
+  `method` varchar(10) NOT NULL COMMENT 'HTTP 方法',
+  `path` varchar(255) NOT NULL COMMENT '请求路径（不含域名）',
+  `query_string` text DEFAULT NULL COMMENT 'QueryString',
+  `status_code` int NOT NULL COMMENT 'HTTP 状态码',
+  `duration_ms` int NOT NULL COMMENT '耗时（毫秒）',
+  `ip_address` varchar(50) DEFAULT NULL COMMENT '客户端IP（优先 X-Forwarded-For）',
+  `user_agent` varchar(255) DEFAULT NULL COMMENT 'User-Agent',
+  `request_headers` json DEFAULT NULL COMMENT '请求头（已脱敏）',
+  `request_body` mediumtext DEFAULT NULL COMMENT '请求体（限长、可配置）',
+  `response_body` mediumtext DEFAULT NULL COMMENT '响应体（限长、可配置）',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_trace_id` (`trace_id`),
+  KEY `idx_admin_time2` (`admin_id`, `created_at` DESC),
+  KEY `idx_status_time` (`status_code`, `created_at` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理后台接口访问日志';
+
 -- 7. 领域事件发件箱表 (quadra_system 服务私有)
 DROP TABLE IF EXISTS `outbox_event`;
 CREATE TABLE `outbox_event` (

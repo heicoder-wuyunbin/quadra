@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, DatePicker, Form, Input, message, Modal, Select, Space, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { EyeOutlined, SendOutlined } from '@ant-design/icons';
@@ -12,29 +12,23 @@ const SendNotice: React.FC = () => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templates, setTemplates] = useState<MessageTemplateDTO[]>([]);
 
-  // TODO：后端补齐后替换为 messageApi.listTemplates
-  const templates: MessageTemplateDTO[] = useMemo(
-    () => [
-      {
-        id: 1,
-        name: '系统维护通知',
-        description: '用于系统升级/维护提醒',
-        content: '尊敬的用户：\n系统将于 {timeRange} 进行维护，期间部分功能可能不可用，敬请谅解。',
-        variables: ['timeRange'],
-        createdAt: '2024-01-01 10:00:00',
-      },
-      {
-        id: 2,
-        name: '活动通知',
-        description: '运营活动触达',
-        content: 'Hi {nickname}，\n{activityName} 活动开始啦！点击进入：{url}',
-        variables: ['nickname', 'activityName', 'url'],
-        createdAt: '2024-01-02 10:00:00',
-      },
-    ],
-    []
-  );
+  const fetchTemplates = useCallback(async () => {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) return;
+    setTemplatesLoading(true);
+    try {
+      const page = await messageApi.listTemplates({ page: 1, size: 200 });
+      setTemplates(page.records || page.list || []);
+    } catch (error) {
+      console.warn('listTemplates failed:', error);
+      message.error((error as Error)?.message || '获取模板列表失败');
+    } finally {
+      setTemplatesLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     // 默认值
@@ -45,6 +39,10 @@ const SendNotice: React.FC = () => {
       sendMode: 'NOW',
     });
   }, [form]);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   const parseTargetIds = (value?: string): number[] | undefined => {
     if (!value) return undefined;
@@ -103,9 +101,8 @@ const SendNotice: React.FC = () => {
         sendMode: 'NOW',
       });
     } catch (error) {
-      // 后端未接入时：前端先保证页面可用
-      console.warn('sendNotice failed, fallback mock:', error);
-      message.success(sendMode === 'SCHEDULE' ? '（模拟）已创建定时发送任务' : '（模拟）发送成功');
+      console.warn('sendNotice failed:', error);
+      message.error((error as Error)?.message || '发送失败');
     } finally {
       setSubmitting(false);
     }
@@ -183,6 +180,7 @@ const SendNotice: React.FC = () => {
                 placeholder="不使用模板"
                 allowClear
                 onChange={(id) => handleTemplateChange(id)}
+                loading={templatesLoading}
                 options={templates.map((t) => ({ value: t.id, label: `${t.name}${t.description ? `（${t.description}）` : ''}` }))}
               />
             </Form.Item>

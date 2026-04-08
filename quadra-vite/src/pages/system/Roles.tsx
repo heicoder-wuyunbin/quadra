@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Card, Typography, Empty } from 'antd';
 
 const { Title } = Typography;

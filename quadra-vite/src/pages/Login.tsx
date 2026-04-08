@@ -6,7 +6,7 @@ import { adminApi } from '@/services/api';
 import { setToken } from '@/utils/storage';
 import type { AdminLoginRequest } from '@/services/types';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -15,23 +15,15 @@ const Login: React.FC = () => {
   const onFinish = async (values: AdminLoginRequest) => {
     setLoading(true);
     try {
-      const res = await adminApi.login(values);
-      console.log('登录响应:', res);
-      // res 是 axios 响应对象，res.data 是 API 返回的结果
-      if (res.data && res.data.data) {
-        const { accessToken, refreshToken } = res.data.data;
-        setToken(accessToken, refreshToken);
-        // 存储登录时间，用于判断是否是刚刚登录的请求
-        localStorage.setItem('login_time', Date.now().toString());
-        console.log('Token 已存储:', { accessToken, refreshToken });
-        message.success('登录成功');
-        navigate('/');
-      } else {
-        message.error('登录响应格式错误');
-      }
-    } catch (error: any) {
+      const { accessToken, refreshToken } = await adminApi.login(values);
+      setToken(accessToken, refreshToken);
+      // 存储登录时间，用于判断是否是刚刚登录的请求
+      localStorage.setItem('login_time', Date.now().toString());
+      message.success('登录成功');
+      navigate('/');
+    } catch (error: unknown) {
       console.error('Login failed:', error);
-      message.error(error.message || '登录失败');
+      message.error((error as Error)?.message || '登录失败');
     } finally {
       setLoading(false);
     }

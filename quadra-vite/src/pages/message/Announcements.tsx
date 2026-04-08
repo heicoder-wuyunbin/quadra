@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge, Breadcrumb, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Switch, Table, Tag, Typography } from 'antd';
 import { EditOutlined, EyeOutlined, PlusOutlined, PushpinOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { messageApi } from '@/services/api';
-import type { AnnouncementDTO, AnnouncementQueryParams, AnnouncementStatus, PageResult } from '@/services/types';
+import type { AnnouncementDTO, AnnouncementQueryParams, AnnouncementStatus } from '@/services/types';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -22,40 +22,6 @@ const Announcements: React.FC = () => {
   const [editing, setEditing] = useState<AnnouncementDTO | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
-  const mockData: AnnouncementDTO[] = useMemo(
-    () => [
-      {
-        id: 1,
-        title: '春节活动公告',
-        content: '春节期间将举办线上交友活动，丰厚奖励等你来拿！敬请期待！',
-        status: 'PUBLISHED',
-        isTop: true,
-        publisherName: '运营专员',
-        publishedAt: '2024-01-10 10:00:00',
-        createdAt: '2024-01-09 18:00:00',
-      },
-      {
-        id: 2,
-        title: '系统升级通知',
-        content: '系统将于今晚 23:00-01:00 进行升级维护。',
-        status: 'OFFLINE',
-        isTop: false,
-        publisherName: '系统管理员',
-        publishedAt: '2024-01-08 09:30:00',
-        createdAt: '2024-01-08 09:00:00',
-      },
-      {
-        id: 3,
-        title: '新功能上线预告',
-        content: '我们即将上线“同城速配”功能，敬请关注！',
-        status: 'DRAFT',
-        isTop: false,
-        createdAt: '2024-01-12 12:00:00',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,33 +31,25 @@ const Announcements: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockData);
-      setTotal(mockData.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await messageApi.listAnnouncements({
+      const payload = await messageApi.listAnnouncements({
         page,
         size: pageSize,
         status: query.status,
         keyword: query.keyword,
       });
-      const payload = (res.data?.data || res.data) as PageResult<AnnouncementDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('listAnnouncements failed, fallback mock:', error);
-      const keyword = query.keyword?.trim();
-      const filtered = mockData.filter((a) => {
-        if (query.status && a.status !== query.status) return false;
-        if (keyword && !(a.title.includes(keyword) || a.content.includes(keyword))) return false;
-        return true;
-      });
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('listAnnouncements failed:', error);
+      message.error((error as Error)?.message || '获取公告列表失败');
     } finally {
       setLoading(false);
     }
@@ -143,9 +101,8 @@ const Announcements: React.FC = () => {
       setEditOpen(false);
       fetchData();
     } catch (error) {
-      console.warn('saveAnnouncement failed (mock ok):', error);
-      message.success(editing ? '（模拟）公告已更新' : '（模拟）公告已创建');
-      setEditOpen(false);
+      console.warn('saveAnnouncement failed:', error);
+      message.error((error as Error)?.message || '保存失败');
     }
   };
 
@@ -160,8 +117,8 @@ const Announcements: React.FC = () => {
       }
       fetchData();
     } catch (error) {
-      console.warn('publish toggle failed (mock ok):', error);
-      message.success(record.status === 'PUBLISHED' ? '（模拟）已下架公告' : '（模拟）已发布公告');
+      console.warn('publish toggle failed:', error);
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -171,8 +128,8 @@ const Announcements: React.FC = () => {
       message.success(record.isTop ? '已取消置顶' : '已置顶');
       fetchData();
     } catch (error) {
-      console.warn('toggleTop failed (mock ok):', error);
-      message.success(record.isTop ? '（模拟）已取消置顶' : '（模拟）已置顶');
+      console.warn('toggleTop failed:', error);
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 

@@ -133,6 +133,10 @@ const menuItems: MenuProps['items'] = [
         key: '/log/slow-sql',
         label: '慢查询日志',
       },
+      {
+        key: '/log/request',
+        label: '访问日志',
+      },
     ],
   },
   {

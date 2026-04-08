@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, DatePicker, Descriptions, Form, Input, message, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import { CheckOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { logApi } from '@/services/api';
-import type { ErrorLogDTO, LogQueryParams, PageResult } from '@/services/types';
+import type { ErrorLogDTO, LogQueryParams } from '@/services/types';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -19,38 +19,6 @@ const ErrorLogs: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [current, setCurrent] = useState<ErrorLogDTO | null>(null);
 
-  const mockData: ErrorLogDTO[] = useMemo(
-    () => [
-      {
-        id: 'err_10001',
-        level: 'ERROR',
-        service: 'quadra-system',
-        message: 'NullPointerException: user is null',
-        stackTrace: 'java.lang.NullPointerException\n  at com.xxx.UserService.get(UserService.java:42)\n  ...',
-        requestId: 'req_abc',
-        url: '/v1/system/users/10001',
-        params: { id: 10001 },
-        handled: false,
-        createdAt: '2024-01-15 11:30:00',
-      },
-      {
-        id: 'err_10002',
-        level: 'WARN',
-        service: 'quadra-content',
-        message: 'Slow response > 2000ms',
-        stackTrace: '',
-        requestId: 'req_def',
-        url: '/v1/content/timeline',
-        params: { pageNo: 1, pageSize: 20 },
-        handled: true,
-        handledBy: '系统管理员',
-        handledAt: '2024-01-15 12:00:00',
-        createdAt: '2024-01-15 11:50:00',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,14 +28,14 @@ const ErrorLogs: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockData);
-      setTotal(mockData.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await logApi.getErrorLogs({
+      const payload = await logApi.getErrorLogs({
         page,
         size: pageSize,
         startTime: query.startTime,
@@ -77,22 +45,14 @@ const ErrorLogs: React.FC = () => {
         service: query.service,
         handled: query.handled,
       });
-      const payload = (res.data?.data || res.data) as PageResult<ErrorLogDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('getErrorLogs failed, fallback mock:', error);
-      const keyword = query.keyword?.trim();
-      const filtered = mockData.filter((r) => {
-        if (query.level && r.level !== query.level) return false;
-        if (query.service && !r.service.includes(query.service)) return false;
-        if (query.handled !== undefined && !!r.handled !== query.handled) return false;
-        if (keyword && !(r.message.includes(keyword) || r.url.includes(keyword) || r.requestId.includes(keyword))) return false;
-        return true;
-      });
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('getErrorLogs failed:', error);
+      message.error((error as Error)?.message || '获取错误日志失败');
+      setData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -134,8 +94,8 @@ const ErrorLogs: React.FC = () => {
       message.success(record.handled ? '已取消处理标记' : '已标记为已处理');
       fetchData();
     } catch (error) {
-      console.warn('markErrorHandled failed (mock ok):', error);
-      message.success(record.handled ? '（模拟）已取消处理标记' : '（模拟）已标记为已处理');
+      console.warn('markErrorHandled failed:', error);
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 

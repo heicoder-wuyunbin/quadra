@@ -1,8 +1,10 @@
-import { useState, useEffect, Key } from 'react';
+import { useState, useEffect, useCallback, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Popconfirm, Image, Modal, Select, Breadcrumb } from 'antd';
 import { SearchOutlined, EyeOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { contentAdminApi } from '@/services/api';
+import type { PageResult } from '@/services/types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -52,7 +54,7 @@ const Movements: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: MovementQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: MovementQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -63,54 +65,19 @@ const Movements: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await contentApi.getMovements(params);
-      // 模拟数据
-      const mockData: MovementRecord[] = [
-        {
-          id: 1,
-          userId: 10001,
-          userNickname: '张三',
-          userAvatar: 'https://via.placeholder.com/50',
-          content: '今天天气真好，出去踏青了🌸',
-          images: ['https://via.placeholder.com/300x200', 'https://via.placeholder.com/300x200'],
-          videos: [],
-          likeCount: 128,
-          commentCount: 23,
-          shareCount: 5,
-          status: 1,
-          reportCount: 0,
-          createdAt: '2024-01-15 14:30:00',
-        },
-        {
-          id: 2,
-          userId: 10002,
-          userNickname: '李四',
-          userAvatar: 'https://via.placeholder.com/50',
-          content: '分享一首喜欢的诗',
-          images: [],
-          videos: ['https://via.placeholder.com/300x200'],
-          likeCount: 256,
-          commentCount: 45,
-          shareCount: 12,
-          status: 0,
-          reportCount: 3,
-          createdAt: '2024-01-15 13:20:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(2);
+      const payload = (await contentAdminApi.listMovements(params)) as PageResult<MovementRecord>;
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取动态列表失败');
+      message.error((error as Error)?.message || '获取动态列表失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -126,21 +93,21 @@ const Movements: React.FC = () => {
 
   const handleApprove = async (id: number) => {
     try {
-      // TODO: 调用审核通过 API
+      await contentAdminApi.approveMovement(id);
       message.success('审核通过');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
   const handleReject = async (id: number) => {
     try {
-      // TODO: 调用审核拒绝 API
+      await contentAdminApi.rejectMovement(id);
       message.success('已拒绝');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -183,7 +150,7 @@ const Movements: React.FC = () => {
       dataIndex: 'userNickname',
       key: 'userNickname',
       width: 120,
-      render: (_: any, record: MovementRecord) => (
+      render: (_: unknown, record: MovementRecord) => (
         <Space>
           {record.userAvatar && <Image src={record.userAvatar} width={32} height={32} style={{ borderRadius: '50%' }} />}
           <span>{record.userNickname}</span>
@@ -201,7 +168,7 @@ const Movements: React.FC = () => {
       title: '媒体',
       key: 'media',
       width: 100,
-      render: (_: any, record: MovementRecord) => (
+      render: (_: unknown, record: MovementRecord) => (
         <Space>
           {record.images && record.images.length > 0 && (
             <Button 
@@ -221,7 +188,7 @@ const Movements: React.FC = () => {
       title: '互动',
       key: 'interactions',
       width: 150,
-      render: (_: any, record: MovementRecord) => (
+      render: (_: unknown, record: MovementRecord) => (
         <Space size="small">
           <Tag>👍 {record.likeCount}</Tag>
           <Tag>💬 {record.commentCount}</Tag>
@@ -259,7 +226,7 @@ const Movements: React.FC = () => {
       key: 'action',
       width: 180,
       fixed: 'right',
-      render: (_: any, record: MovementRecord) => (
+      render: (_: unknown, record: MovementRecord) => (
         <Space size="small">
           <Button 
             type="link" 

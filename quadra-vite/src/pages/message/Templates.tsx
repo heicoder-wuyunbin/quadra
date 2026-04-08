@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, Form, Input, message, Modal, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { messageApi } from '@/services/api';
-import type { MessageTemplateDTO, MessageTemplateQueryParams, PageResult } from '@/services/types';
+import type { MessageTemplateDTO, MessageTemplateQueryParams } from '@/services/types';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -21,29 +21,6 @@ const Templates: React.FC = () => {
   const [editing, setEditing] = useState<MessageTemplateDTO | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  const mockTemplates: MessageTemplateDTO[] = useMemo(
-    () => [
-      {
-        id: 1,
-        name: '系统维护通知',
-        description: '用于系统升级/维护提醒',
-        content: '尊敬的用户：\n系统将于 {timeRange} 进行维护，期间部分功能可能不可用，敬请谅解。',
-        variables: ['timeRange'],
-        createdAt: '2024-01-01 10:00:00',
-        updatedAt: '2024-01-10 10:00:00',
-      },
-      {
-        id: 2,
-        name: '活动通知',
-        description: '运营活动触达',
-        content: 'Hi {nickname}，\n{activityName} 活动开始啦！点击进入：{url}',
-        variables: ['nickname', 'activityName', 'url'],
-        createdAt: '2024-01-02 10:00:00',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,30 +30,24 @@ const Templates: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockTemplates);
-      setTotal(mockTemplates.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await messageApi.listTemplates({
+      const payload = await messageApi.listTemplates({
         page,
         size: pageSize,
         keyword: query.keyword,
       });
-      const payload = (res.data?.data || res.data) as PageResult<MessageTemplateDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('listTemplates failed, fallback mock:', error);
-      const keyword = query.keyword?.trim();
-      const filtered = keyword
-        ? mockTemplates.filter((t) => t.name.includes(keyword) || t.content.includes(keyword))
-        : mockTemplates;
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('listTemplates failed:', error);
+      message.error((error as Error)?.message || '获取模板列表失败');
     } finally {
       setLoading(false);
     }
@@ -143,9 +114,8 @@ const Templates: React.FC = () => {
       setEditOpen(false);
       fetchData();
     } catch (error) {
-      console.warn('saveTemplate failed (mock ok):', error);
-      message.success(editing ? '（模拟）模板已更新' : '（模拟）模板已创建');
-      setEditOpen(false);
+      console.warn('saveTemplate failed:', error);
+      message.error((error as Error)?.message || '保存失败');
     }
   };
 

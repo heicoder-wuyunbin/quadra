@@ -20,7 +20,8 @@ export type OpenAPIConfig = {
 };
 
 export const OpenAPI: OpenAPIConfig = {
-    BASE: 'http://localhost:18083',
+    // 管理后台所有请求必须走网关：使用同源 BASE，交由 dev-proxy 或生产网关转发
+    BASE: '',
     VERSION: '0',
     WITH_CREDENTIALS: false,
     CREDENTIALS: 'include',

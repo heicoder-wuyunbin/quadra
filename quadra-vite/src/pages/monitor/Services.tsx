@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
-import { Badge, Breadcrumb, Button, Card, Descriptions, Modal, Space, Table, Tag, Typography } from 'antd';
+import { useCallback, useEffect, useState } from 'react';
+import { Breadcrumb, Button, Card, Descriptions, Modal, Space, Table, Tag, Typography } from 'antd';
 import { ReloadOutlined, EyeOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { monitorApi } from '@/services/api';
 
 const { Title } = Typography;
 
@@ -27,87 +27,7 @@ const Services: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [current, setCurrent] = useState<ServiceHealth | null>(null);
 
-  // TODO：后端补齐监控接口后替换为真实 API（如 /v1/monitor/services）
-  const mockData: ServiceHealth[] = useMemo(
-    () => [
-      {
-        name: '网关服务',
-        service: 'quadra-gateway',
-        status: 'UP',
-        version: '1.0.0',
-        uptimeSec: 3600 * 72,
-        cpuPercent: 18,
-        memPercent: 42,
-        qps: 210,
-        avgRtMs: 32,
-        lastCheckAt: dayjs().subtract(10, 'second').format('YYYY-MM-DD HH:mm:ss'),
-        endpoints: { health: '/actuator/health', metrics: '/actuator/metrics' },
-      },
-      {
-        name: '用户服务',
-        service: 'quadra-user',
-        status: 'UP',
-        version: '1.0.0',
-        uptimeSec: 3600 * 10,
-        cpuPercent: 25,
-        memPercent: 55,
-        qps: 80,
-        avgRtMs: 45,
-        lastCheckAt: dayjs().subtract(12, 'second').format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        name: '内容服务',
-        service: 'quadra-content',
-        status: 'DEGRADED',
-        version: '1.0.0',
-        uptimeSec: 3600 * 3,
-        cpuPercent: 68,
-        memPercent: 78,
-        qps: 60,
-        avgRtMs: 980,
-        lastCheckAt: dayjs().subtract(15, 'second').format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        name: '互动服务',
-        service: 'quadra-interaction',
-        status: 'UP',
-        version: '1.0.0',
-        uptimeSec: 3600 * 20,
-        cpuPercent: 12,
-        memPercent: 40,
-        qps: 35,
-        avgRtMs: 50,
-        lastCheckAt: dayjs().subtract(9, 'second').format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        name: '推荐服务',
-        service: 'quadra-recommend',
-        status: 'DOWN',
-        version: '1.0.0',
-        uptimeSec: 0,
-        cpuPercent: 0,
-        memPercent: 0,
-        qps: 0,
-        avgRtMs: 0,
-        lastCheckAt: dayjs().subtract(30, 'second').format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        name: '系统服务',
-        service: 'quadra-system',
-        status: 'UP',
-        version: '1.0.0',
-        uptimeSec: 3600 * 120,
-        cpuPercent: 9,
-        memPercent: 38,
-        qps: 40,
-        avgRtMs: 28,
-        lastCheckAt: dayjs().subtract(8, 'second').format('YYYY-MM-DD HH:mm:ss'),
-      },
-    ],
-    []
-  );
-
-  const [data, setData] = useState<ServiceHealth[]>(mockData);
+  const [data, setData] = useState<ServiceHealth[]>([]);
 
   const getStatusTag = (s: ServiceHealth['status']) => {
     const map: Record<ServiceHealth['status'], { color: string; text: string }> = {
@@ -127,25 +47,21 @@ const Services: React.FC = () => {
     return `${d}天${h}小时${m}分`;
   };
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) return;
     setLoading(true);
     try {
-      // TODO：真实联调接口时替换
-      await new Promise((r) => setTimeout(r, 400));
-      setData(
-        data.map((item) => ({
-          ...item,
-          lastCheckAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-          cpuPercent: Math.max(0, Math.min(95, Math.round(item.cpuPercent + (Math.random() * 10 - 5)))),
-          memPercent: Math.max(0, Math.min(95, Math.round(item.memPercent + (Math.random() * 10 - 5)))),
-          qps: Math.max(0, Math.round(item.qps + (Math.random() * 20 - 10))),
-          avgRtMs: Math.max(0, Math.round(item.avgRtMs + (Math.random() * 50 - 25))),
-        }))
-      );
+      const list = await monitorApi.listServices();
+      setData(list as ServiceHealth[]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const columns = [
     {
@@ -243,7 +159,6 @@ const Services: React.FC = () => {
           <Title level={4} style={{ margin: 0 }}>
             服务监控
           </Title>
-          <Badge status="processing" text="模拟数据（后端接口未接入时）" />
         </Space>
       </div>
 

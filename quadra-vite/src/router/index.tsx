@@ -32,6 +32,7 @@ import LoginLogs from '@/pages/log/LoginLogs';
 import ErrorLogs from '@/pages/log/ErrorLogs';
 import ApiLogs from '@/pages/log/ApiLogs';
 import SlowSQL from '@/pages/log/SlowSQL';
+import RequestLogs from '@/pages/log/RequestLogs';
 
 // 运维监控
 import Services from '@/pages/monitor/Services';
@@ -43,8 +44,6 @@ import Admins from '@/pages/system/Admins';
 import Roles from '@/pages/system/Roles';
 import Menus from '@/pages/system/Menus';
 import Analysis from '@/pages/system/Analysis';
-
-import { isAdminLoggedIn } from '@/utils/storage';
 
 const router = createBrowserRouter([
   {
@@ -157,6 +156,10 @@ const router = createBrowserRouter([
           {
             path: 'slow-sql',
             element: <SlowSQL />,
+          },
+          {
+            path: 'request',
+            element: <RequestLogs />,
           },
         ],
       },

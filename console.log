@@ -1,116 +1,49 @@
-Creating a new SqlSession
-SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5ecbecad] was not registered for synchronization because synchronization is not active
-2026-03-31T23:34:44.698+08:00 ERROR 1894 --- [quadra-system] [io-18086-exec-2] com.zaxxer.hikari.HikariConfig           : HikariPool-1 - jdbcUrl is required with driverClassName.
-Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5ecbecad]
-2026-03-31T23:34:44.699+08:00 ERROR 1894 --- [quadra-system] [io-18086-exec-2] c.q.s.a.i.w.e.GlobalExceptionHandler     : 系统未知异常: 
+➜  quadra-system-infrastructure git:(main) ✗  /usr/bin/env /Library/Java/JavaVirtualMachines/graalvm-jdk-21.0.10+8.1/Contents/Home/bin/java -agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=localhost:60096 @/var/folders/yy
+/7r8l0b4n7tgf7kl37qvyq30m0000gn/T/cp_ar69wwbsq39o1u0v1xjiy73eh.argfile com.quadra.system.infrastructure.QuadraSystemA
+pplication 
 
-org.mybatis.spring.MyBatisSystemException: 
-### Error querying database.  Cause: java.lang.IllegalArgumentException: jdbcUrl is required with driverClassName.
-### The error may exist in com/quadra/system/adapter/out/persistence/mapper/SysAdminMapper.java (best guess)
-### The error may involve com.quadra.system.adapter.out.persistence.mapper.SysAdminMapper.selectList
-### The error occurred while executing a query
-### Cause: java.lang.IllegalArgumentException: jdbcUrl is required with driverClassName.
-        at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:101) ~[mybatis-spring-3.0.5.jar:3.0.5]
-        at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:347) ~[mybatis-spring-3.0.5.jar:3.0.5]
-        at jdk.proxy2/jdk.proxy2.$Proxy94.selectList(Unknown Source) ~[na:na]
-        at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:194) ~[mybatis-spring-3.0.5.jar:3.0.5]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:156) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:93) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at jdk.proxy2/jdk.proxy2.$Proxy99.selectList(Unknown Source) ~[na:na]
-        at com.baomidou.mybatisplus.core.mapper.BaseMapper.selectOne(BaseMapper.java:337) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at java.base/java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:733) ~[na:na]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:172) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:93) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at jdk.proxy2/jdk.proxy2.$Proxy99.selectOne(Unknown Source) ~[na:na]
-        at com.baomidou.mybatisplus.core.mapper.BaseMapper.selectOne(BaseMapper.java:326) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at java.base/java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:733) ~[na:na]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:182) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:93) ~[mybatis-plus-core-3.5.15.jar:3.5.15]
-        at jdk.proxy2/jdk.proxy2.$Proxy99.selectOne(Unknown Source) ~[na:na]
-        at com.quadra.system.adapter.out.security.AdminLoginAdapterImpl.findByUsername(AdminLoginAdapterImpl.java:44) ~[classes/:na]
-        at com.quadra.system.application.service.AdminLoginApplicationService.login(AdminLoginApplicationService.java:27) ~[classes/:na]
-        at com.quadra.system.adapter.in.web.SystemController.login(SystemController.java:70) ~[classes/:na]
-        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
-        at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
-        at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.53.jar:6.0]
-        at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.17.jar:6.2.17]
-        at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.53.jar:6.0]
-        at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.17.jar:6.2.17]
-        at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1775) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.53.jar:10.1.53]
-        at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-Caused by: org.apache.ibatis.exceptions.PersistenceException: 
-### Error querying database.  Cause: java.lang.IllegalArgumentException: jdbcUrl is required with driverClassName.
-### The error may exist in com/quadra/system/adapter/out/persistence/mapper/SysAdminMapper.java (best guess)
-### The error may involve com.quadra.system.adapter.out.persistence.mapper.SysAdminMapper.selectList
-### The error occurred while executing a query
-### Cause: java.lang.IllegalArgumentException: jdbcUrl is required with driverClassName.
-        at org.apache.ibatis.exceptions.ExceptionFactory.wrapException(ExceptionFactory.java:30) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:156) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142) ~[mybatis-3.5.19.jar:3.5.19]
-        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
-        at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
-        at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:333) ~[mybatis-spring-3.0.5.jar:3.0.5]
-        ... 68 common frames omitted
-Caused by: java.lang.IllegalArgumentException: jdbcUrl is required with driverClassName.
-        at com.zaxxer.hikari.HikariConfig.validate(HikariConfig.java:1080) ~[HikariCP-6.3.3.jar:na]
-        at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:108) ~[HikariCP-6.3.3.jar:na]
-        at org.springframework.jdbc.datasource.DataSourceUtils.fetchConnection(DataSourceUtils.java:160) ~[spring-jdbc-6.2.17.jar:6.2.17]
-        at org.springframework.jdbc.datasource.DataSourceUtils.doGetConnection(DataSourceUtils.java:118) ~[spring-jdbc-6.2.17.jar:6.2.17]
-        at org.springframework.jdbc.datasource.DataSourceUtils.getConnection(DataSourceUtils.java:81) ~[spring-jdbc-6.2.17.jar:6.2.17]
-        at org.mybatis.spring.transaction.SpringManagedTransaction.openConnection(SpringManagedTransaction.java:77) ~[mybatis-spring-3.0.5.jar:3.0.5]
-        at org.mybatis.spring.transaction.SpringManagedTransaction.getConnection(SpringManagedTransaction.java:64) ~[mybatis-spring-3.0.5.jar:3.0.5]
-        at org.apache.ibatis.executor.BaseExecutor.getConnection(BaseExecutor.java:348) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.executor.SimpleExecutor.prepareStatement(SimpleExecutor.java:89) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:64) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158) ~[mybatis-3.5.19.jar:3.5.19]
-        at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110) ~[mybatis-3.5.19.jar:3.5.19]
-        at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:81) ~[mybatis-plus-extension-3.5.15.jar:3.5.15]
-        at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59) ~[mybatis-3.5.19.jar:3.5.19]
-        at jdk.proxy2/jdk.proxy2.$Proxy151.query(Unknown Source) ~[na:na]
-        at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154) ~[mybatis-3.5.19.jar:3.5.19]
-        ... 73 common frames omitted
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
 
+ :: Spring Boot ::               (v3.5.13)
+
+2026-04-08T00:51:37.536+08:00  INFO 2459 --- [quadra-system] [           main] c.q.s.i.QuadraSystemApplication          : Starting QuadraSystemApplication using Java 21.0.10 with PID 2459 (/Users/wuyunbin/workspace/quadra/quadra-system-module/quadra-system-infrastructure/target/classes started by wuyunbin in /Users/wuyunbin/workspace/quadra/quadra-system-module/quadra-system-infrastructure)
+2026-04-08T00:51:37.537+08:00  INFO 2459 --- [quadra-system] [           main] c.q.s.i.QuadraSystemApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-04-08T00:51:38.200+08:00  INFO 2459 --- [quadra-system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-04-08T00:51:38.200+08:00  INFO 2459 --- [quadra-system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-04-08T00:51:38.214+08:00  INFO 2459 --- [quadra-system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
+2026-04-08T00:51:38.409+08:00  INFO 2459 --- [quadra-system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-04-08T00:51:38.409+08:00  INFO 2459 --- [quadra-system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-04-08T00:51:38.417+08:00  INFO 2459 --- [quadra-system] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 7 ms. Found 0 Redis repository interfaces.
+2026-04-08T00:51:38.568+08:00  INFO 2459 --- [quadra-system] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=69e4e737-5913-37b1-9e0a-92b80198f287
+2026-04-08T00:51:38.833+08:00  INFO 2459 --- [quadra-system] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 18086 (http)
+2026-04-08T00:51:38.842+08:00  INFO 2459 --- [quadra-system] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-08T00:51:38.842+08:00  INFO 2459 --- [quadra-system] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.53]
+2026-04-08T00:51:38.879+08:00  INFO 2459 --- [quadra-system] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-08T00:51:38.880+08:00  INFO 2459 --- [quadra-system] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1297 ms
+2026-04-08T00:51:38.885+08:00 ERROR 2459 --- [quadra-system] [           main] o.s.b.web.embedded.tomcat.TomcatStarter  : Error starting Tomcat context. Exception: org.springframework.beans.factory.UnsatisfiedDependencyException. Message: Error creating bean with name 'sysRequestLogFilter' defined in file [/Users/wuyunbin/workspace/quadra/quadra-system-module/quadra-system-adapter/quadra-system-adapter-in/quadra-system-adapter-in-web/target/classes/com/quadra/system/adapter/in/web/filter/SysRequestLogFilter.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'requestLogApplicationService' defined in file [/Users/wuyunbin/workspace/quadra/quadra-system-module/quadra-system-application/target/classes/com/quadra/system/application/service/RequestLogApplicationService.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'com.quadra.system.application.port.out.RequestLogRepositoryPort' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-04-08T00:51:38.899+08:00  INFO 2459 --- [quadra-system] [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-04-08T00:51:38.904+08:00  WARN 2459 --- [quadra-system] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server
+2026-04-08T00:51:38.913+08:00  INFO 2459 --- [quadra-system] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-04-08T00:51:38.926+08:00 ERROR 2459 --- [quadra-system] [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in com.quadra.system.application.service.RequestLogApplicationService required a bean of type 'com.quadra.system.application.port.out.RequestLogRepositoryPort' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.quadra.system.application.port.out.RequestLogRepositoryPort' in your configuration.
+
+➜  quadra-system-infrastructure git:(main) ✗ 

@@ -1,8 +1,10 @@
-import { useState, useEffect, Key } from 'react';
+import { useState, useEffect, useCallback, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Popconfirm, Modal, Select, Breadcrumb } from 'antd';
 import { SearchOutlined, PlayCircleOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { contentAdminApi } from '@/services/api';
+import type { PageResult } from '@/services/types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -53,7 +55,7 @@ const Videos: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: VideoQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: VideoQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -64,58 +66,19 @@ const Videos: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await contentApi.getVideos(params);
-      // 模拟数据
-      const mockData: VideoRecord[] = [
-        {
-          id: 1,
-          userId: 10001,
-          userNickname: '张三',
-          userAvatar: 'https://via.placeholder.com/50',
-          title: '美丽的风景',
-          description: '分享一段美丽的风景视频',
-          coverUrl: 'https://via.placeholder.com/300x200',
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          duration: 125,
-          likeCount: 520,
-          commentCount: 89,
-          shareCount: 32,
-          status: 1,
-          reportCount: 0,
-          createdAt: '2024-01-15 14:30:00',
-        },
-        {
-          id: 2,
-          userId: 10002,
-          userNickname: '李四',
-          userAvatar: 'https://via.placeholder.com/50',
-          title: '美食制作教程',
-          description: '教大家做一道家常菜',
-          coverUrl: 'https://via.placeholder.com/300x200',
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          duration: 300,
-          likeCount: 1024,
-          commentCount: 156,
-          shareCount: 78,
-          status: 0,
-          reportCount: 2,
-          createdAt: '2024-01-15 13:20:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(2);
+      const payload = (await contentAdminApi.listVideos(params)) as PageResult<VideoRecord>;
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取视频列表失败');
+      message.error((error as Error)?.message || '获取视频列表失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -131,21 +94,21 @@ const Videos: React.FC = () => {
 
   const handleApprove = async (id: number) => {
     try {
-      // TODO: 调用审核通过 API
+      await contentAdminApi.approveVideo(id);
       message.success('审核通过');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
   const handleReject = async (id: number) => {
     try {
-      // TODO: 调用审核拒绝 API
+      await contentAdminApi.rejectVideo(id);
       message.success('已拒绝');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -193,7 +156,7 @@ const Videos: React.FC = () => {
       dataIndex: 'userNickname',
       key: 'userNickname',
       width: 120,
-      render: (_: any, record: VideoRecord) => (
+      render: (_: unknown, record: VideoRecord) => (
         <Space>
           {record.userAvatar && (
             <img src={record.userAvatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
@@ -206,7 +169,7 @@ const Videos: React.FC = () => {
       title: '视频信息',
       key: 'video',
       width: 250,
-      render: (_: any, record: VideoRecord) => (
+      render: (_: unknown, record: VideoRecord) => (
         <Space>
           {record.coverUrl && (
             <img src={record.coverUrl} alt="" style={{ width: 120, height: 68, borderRadius: 4, objectFit: 'cover' }} />
@@ -222,7 +185,7 @@ const Videos: React.FC = () => {
       title: '互动',
       key: 'interactions',
       width: 150,
-      render: (_: any, record: VideoRecord) => (
+      render: (_: unknown, record: VideoRecord) => (
         <Space size="small">
           <Tag>👍 {record.likeCount}</Tag>
           <Tag>💬 {record.commentCount}</Tag>
@@ -260,7 +223,7 @@ const Videos: React.FC = () => {
       key: 'action',
       width: 200,
       fixed: 'right',
-      render: (_: any, record: VideoRecord) => (
+      render: (_: unknown, record: VideoRecord) => (
         <Space size="small">
           <Button 
             type="link" 

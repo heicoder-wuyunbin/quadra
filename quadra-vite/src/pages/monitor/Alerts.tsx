@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, Descriptions, Form, Input, message, Modal, Popconfirm, Select, Space, Switch, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, BellOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { PlusOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { monitorApi } from '@/services/api';
 
 const { Title } = Typography;
 
@@ -49,92 +49,56 @@ const Alerts: React.FC = () => {
   const [currentEvent, setCurrentEvent] = useState<AlertEvent | null>(null);
   const [eventDetailOpen, setEventDetailOpen] = useState(false);
 
-  // TODO：后端补齐告警接口后替换为真实 API（如 /v1/monitor/alerts）
-  const mockRules: AlertRule[] = useMemo(
-    () => [
-      {
-        id: 1,
-        name: 'CPU 使用率过高',
-        level: 'HIGH',
-        metric: 'cpu',
-        threshold: 'cpu > 80%',
-        channel: ['IN_APP'],
-        enabled: true,
-        description: '当任一服务 CPU 使用率持续高于 80% 时触发。',
-        lastTriggeredAt: '2024-01-15 11:40:00',
-        createdAt: '2024-01-10 10:00:00',
-      },
-      {
-        id: 2,
-        name: '接口错误率过高',
-        level: 'CRITICAL',
-        metric: 'errorRate',
-        threshold: 'errorRate > 10%',
-        channel: ['IN_APP', 'EMAIL'],
-        enabled: true,
-        description: '当网关统计的接口错误率过高时触发。',
-        lastTriggeredAt: '2024-01-15 12:02:00',
-        createdAt: '2024-01-10 10:10:00',
-      },
-      {
-        id: 3,
-        name: '慢 SQL 激增',
-        level: 'MEDIUM',
-        metric: 'slowSql',
-        threshold: 'slowSqlCount > 100 / 5min',
-        channel: ['IN_APP'],
-        enabled: false,
-        createdAt: '2024-01-11 10:00:00',
-      },
-    ],
+  const [rules, setRules] = useState<AlertRule[]>([]);
+  const [events, setEvents] = useState<AlertEvent[]>([]);
+
+  const fetchRules = useCallback(
+    async (params?: { level?: AlertLevel; enabled?: boolean; keyword?: string }) => {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) return;
+      setLoading(true);
+      try {
+        const page = await monitorApi.listAlertRules(params);
+        setRules((page.records || page.list || []) as AlertRule[]);
+      } catch (error) {
+        console.warn(error);
+        message.error((error as Error)?.message || '获取告警规则失败');
+      } finally {
+        setLoading(false);
+      }
+    },
     []
   );
 
-  const mockEvents: AlertEvent[] = useMemo(
-    () => [
-      {
-        id: 'evt_10001',
-        ruleId: 2,
-        ruleName: '接口错误率过高',
-        level: 'CRITICAL',
-        service: 'quadra-gateway',
-        message: '过去 5 分钟错误率达到 12.3%',
-        status: 'OPEN',
-        occurredAt: '2024-01-15 12:02:00',
-      },
-      {
-        id: 'evt_10002',
-        ruleId: 1,
-        ruleName: 'CPU 使用率过高',
-        level: 'HIGH',
-        service: 'quadra-content',
-        message: 'CPU 峰值达到 92%',
-        status: 'ACKED',
-        occurredAt: '2024-01-15 11:40:00',
-        acknowledgedBy: '系统管理员',
-        acknowledgedAt: '2024-01-15 11:45:00',
-      },
-      {
-        id: 'evt_10003',
-        ruleId: 1,
-        ruleName: 'CPU 使用率过高',
-        level: 'HIGH',
-        service: 'quadra-content',
-        message: 'CPU 已恢复至 65%',
-        status: 'RESOLVED',
-        occurredAt: '2024-01-15 11:40:00',
-        resolvedAt: '2024-01-15 12:10:00',
-      },
-    ],
+  const fetchEvents = useCallback(
+    async (params?: { level?: AlertLevel; status?: AlertStatus; keyword?: string; page?: number; size?: number }) => {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) return;
+      setLoading(true);
+      try {
+        const page = await monitorApi.listAlertEvents(params);
+        setEvents((page.records || page.list || []) as AlertEvent[]);
+      } catch (error) {
+        console.warn(error);
+        message.error((error as Error)?.message || '获取告警事件失败');
+      } finally {
+        setLoading(false);
+      }
+    },
     []
   );
-
-  const [rules, setRules] = useState<AlertRule[]>(mockRules);
-  const [events, setEvents] = useState<AlertEvent[]>(mockEvents);
 
   useEffect(() => {
     queryForm.setFieldsValue({ level: undefined, status: undefined, keyword: undefined });
   }, [queryForm]);
+
+  useEffect(() => {
+    if (tab === 'rules') {
+      fetchRules();
+      return;
+    }
+    fetchEvents({ page: 1, size: 50 });
+  }, [tab, fetchRules, fetchEvents]);
 
   const getLevelTag = (level: AlertLevel) => {
     const map: Record<AlertLevel, { color: string; text: string }> = {
@@ -158,19 +122,21 @@ const Alerts: React.FC = () => {
   };
 
   const refresh = async () => {
-    setLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 400));
-      // mock 下刷新一下发生时间，模拟新数据
-      setEvents((prev) =>
-        prev.map((e) => ({
-          ...e,
-          occurredAt: e.status === 'OPEN' ? dayjs().format('YYYY-MM-DD HH:mm:ss') : e.occurredAt,
-        }))
-      );
-    } finally {
-      setLoading(false);
+    const values = queryForm.getFieldsValue();
+    if (tab === 'rules') {
+      await fetchRules({
+        level: values.level,
+        keyword: values.keyword?.trim() || undefined,
+      });
+      return;
     }
+    await fetchEvents({
+      level: values.level,
+      status: values.status,
+      keyword: values.keyword?.trim() || undefined,
+      page: 1,
+      size: 50,
+    });
   };
 
   const openCreateRule = () => {
@@ -190,87 +156,91 @@ const Alerts: React.FC = () => {
     const values = await ruleForm.validateFields();
     try {
       if (editingRule) {
-        setRules((prev) =>
-          prev.map((r) => (r.id === editingRule.id ? { ...r, ...values } : r))
-        );
-        message.success('（模拟）规则已更新');
+        await monitorApi.updateAlertRule(editingRule.id, values);
+        message.success('规则已更新');
       } else {
-        const newRule: AlertRule = {
-          id: Math.max(0, ...rules.map((r) => r.id)) + 1,
-          createdAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-          ...values,
-        };
-        setRules((prev) => [newRule, ...prev]);
-        message.success('（模拟）规则已创建');
+        await monitorApi.createAlertRule(values);
+        message.success('规则已创建');
       }
       setEditOpen(false);
+      await fetchRules();
     } catch (error) {
       console.warn('saveRule failed:', error);
+      message.error((error as Error)?.message || '保存失败');
     }
   };
 
   const toggleRuleEnabled = async (rule: AlertRule) => {
-    setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, enabled: !r.enabled } : r)));
-    message.success(rule.enabled ? '已禁用规则' : '已启用规则');
+    try {
+      await monitorApi.updateAlertRule(rule.id, { enabled: !rule.enabled });
+      message.success(rule.enabled ? '已禁用规则' : '已启用规则');
+      await fetchRules();
+    } catch (error) {
+      console.warn(error);
+      message.error((error as Error)?.message || '操作失败');
+    }
   };
 
   const deleteRule = async (rule: AlertRule) => {
-    setRules((prev) => prev.filter((r) => r.id !== rule.id));
-    message.success('已删除规则');
+    try {
+      await monitorApi.deleteAlertRule(rule.id);
+      message.success('已删除规则');
+      await fetchRules();
+    } catch (error) {
+      console.warn(error);
+      message.error((error as Error)?.message || '删除失败');
+    }
   };
 
-  const ackEvent = (evt: AlertEvent) => {
+  const ackEvent = async (evt: AlertEvent) => {
     if (evt.status !== 'OPEN') return;
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === evt.id
-          ? {
-              ...e,
-              status: 'ACKED',
-              acknowledgedBy: '当前管理员',
-              acknowledgedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-            }
-          : e
-      )
-    );
-    message.success('已确认告警');
+    try {
+      await monitorApi.ackAlertEvent(evt.id);
+      message.success('已确认告警');
+      await fetchEvents({ page: 1, size: 50 });
+    } catch (error) {
+      console.warn(error);
+      message.error((error as Error)?.message || '操作失败');
+    }
   };
 
-  const resolveEvent = (evt: AlertEvent) => {
+  const resolveEvent = async (evt: AlertEvent) => {
     if (evt.status === 'RESOLVED') return;
-    setEvents((prev) =>
-      prev.map((e) => (e.id === evt.id ? { ...e, status: 'RESOLVED', resolvedAt: dayjs().format('YYYY-MM-DD HH:mm:ss') } : e))
-    );
-    message.success('已标记恢复');
+    try {
+      await monitorApi.resolveAlertEvent(evt.id);
+      message.success('已标记恢复');
+      await fetchEvents({ page: 1, size: 50 });
+    } catch (error) {
+      console.warn(error);
+      message.error((error as Error)?.message || '操作失败');
+    }
   };
 
   const handleQuery = async () => {
     const values = await queryForm.validateFields();
-    const keyword = values.keyword?.trim();
     if (tab === 'rules') {
-      setRules(
-        mockRules.filter((r) => {
-          if (values.level && r.level !== values.level) return false;
-          if (keyword && !(r.name.includes(keyword) || r.threshold.includes(keyword))) return false;
-          return true;
-        })
-      );
+      await fetchRules({
+        level: values.level,
+        keyword: values.keyword?.trim() || undefined,
+      });
     } else {
-      setEvents(
-        mockEvents.filter((e) => {
-          if (values.level && e.level !== values.level) return false;
-          if (values.status && e.status !== values.status) return false;
-          if (keyword && !(e.ruleName.includes(keyword) || e.service.includes(keyword) || e.message.includes(keyword))) return false;
-          return true;
-        })
-      );
+      await fetchEvents({
+        level: values.level,
+        status: values.status,
+        keyword: values.keyword?.trim() || undefined,
+        page: 1,
+        size: 50,
+      });
     }
   };
 
   const resetQuery = () => {
     queryForm.resetFields();
-    setRules(mockRules);
-    setEvents(mockEvents);
+    if (tab === 'rules') {
+      fetchRules();
+      return;
+    }
+    fetchEvents({ page: 1, size: 50 });
   };
 
   const ruleColumns = [
@@ -365,7 +335,6 @@ const Alerts: React.FC = () => {
           <Title level={4} style={{ margin: 0 }}>
             告警管理
           </Title>
-          <Tag icon={<BellOutlined />}>模拟数据</Tag>
         </Space>
       </div>
 

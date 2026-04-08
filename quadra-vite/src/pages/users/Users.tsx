@@ -1,8 +1,8 @@
-import { useEffect, useState, Key } from 'react';
+import { useEffect, useState, useCallback, Key } from 'react';
 import { Card, Typography, Table, Form, Input, Select, Button, Space, Tag, Modal, Descriptions, message, Popconfirm, Breadcrumb, Divider } from 'antd';
-import { SearchOutlined, DeleteOutlined, CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi } from '@/services/api';
-import type { UserAdminDTO, UserDetailDTO, PageResult } from '@/services/types';
+import type { UserAdminDTO, UserDetailDTO } from '@/services/types';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -25,11 +25,7 @@ const Users: React.FC = () => {
   const [detailData, setDetailData] = useState<UserDetailDTO | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
 
-  useEffect(() => {
-    fetchData();
-  }, [page, pageSize, query]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
@@ -38,13 +34,12 @@ const Users: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await adminApi.listUsers({
+      const payload = await adminApi.listUsers({
         mobile: query.mobile,
         status: query.status,
         page,
         size: pageSize,
       });
-      const payload = (res.data?.data || res.data) as PageResult<UserAdminDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
@@ -53,7 +48,11 @@ const Users: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, query]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleSearch = async () => {
     const values = await form.validateFields();
@@ -74,8 +73,8 @@ const Users: React.FC = () => {
     setDetailOpen(true);
     setDetailLoading(true);
     try {
-      const res = await adminApi.getUserDetail(record.id);
-      setDetailData(res.data);
+      const detail = await adminApi.getUserDetail(record.id);
+      setDetailData(detail);
     } catch (error) {
       console.error('Failed to fetch user detail:', error);
       message.error('获取用户详情失败');
@@ -106,7 +105,7 @@ const Users: React.FC = () => {
         const res = await adminApi.resetUserPassword(record.id);
         Modal.success({
           title: '密码已重置',
-          content: `新密码：${res.data.newPassword}`,
+          content: `新密码：${res.newPassword}`,
         });
       },
     });

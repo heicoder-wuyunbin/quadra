@@ -1,8 +1,10 @@
-import { useState, useEffect, Key } from 'react';
-import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, DatePicker, Badge, Breadcrumb } from 'antd';
+import { useState, useEffect, useCallback, Key } from 'react';
+import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, Badge, Breadcrumb } from 'antd';
 import { SearchOutlined, HeartOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { socialAdminApi } from '@/services/api';
+import type { PageResult } from '@/services/types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -53,7 +55,7 @@ const Matches: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: MatchQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: MatchQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -64,84 +66,19 @@ const Matches: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await socialApi.getMatches(params);
-      // 模拟数据
-      const mockData: MatchRecord[] = [
-        {
-          id: 1,
-          userId: 10001,
-          userNickname: '张三',
-          userAvatar: 'https://via.placeholder.com/50',
-          matchedUserId: 10002,
-          matchedUserNickname: '李四',
-          matchedUserAvatar: 'https://via.placeholder.com/50',
-          matchType: 'ALGORITHM',
-          matchScore: 92.5,
-          status: 'ACCEPTED',
-          isChatEnabled: true,
-          createdAt: '2024-01-15 14:30:00',
-          acceptedAt: '2024-01-15 15:00:00',
-        },
-        {
-          id: 2,
-          userId: 10003,
-          userNickname: '王五',
-          userAvatar: 'https://via.placeholder.com/50',
-          matchedUserId: 10004,
-          matchedUserNickname: '赵六',
-          matchedUserAvatar: 'https://via.placeholder.com/50',
-          matchType: 'USER_LIKE',
-          matchScore: 85.0,
-          status: 'PENDING',
-          isChatEnabled: false,
-          createdAt: '2024-01-15 13:20:00',
-          expiresAt: '2024-01-16 13:20:00',
-        },
-        {
-          id: 3,
-          userId: 10005,
-          userNickname: '孙七',
-          userAvatar: 'https://via.placeholder.com/50',
-          matchedUserId: 10006,
-          matchedUserNickname: '周八',
-          matchedUserAvatar: 'https://via.placeholder.com/50',
-          matchType: 'ACTIVITY',
-          matchScore: 78.3,
-          status: 'REJECTED',
-          isChatEnabled: false,
-          createdAt: '2024-01-15 12:00:00',
-          expiresAt: '2024-01-16 12:00:00',
-        },
-        {
-          id: 4,
-          userId: 10007,
-          userNickname: '吴九',
-          userAvatar: 'https://via.placeholder.com/50',
-          matchedUserId: 10008,
-          matchedUserNickname: '郑十',
-          matchedUserAvatar: 'https://via.placeholder.com/50',
-          matchType: 'ALGORITHM',
-          matchScore: 95.8,
-          status: 'EXPIRED',
-          isChatEnabled: false,
-          createdAt: '2024-01-14 10:00:00',
-          expiresAt: '2024-01-15 10:00:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(mockData.length);
+      const payload = (await socialAdminApi.listMatches(params)) as PageResult<MatchRecord>;
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取匹配记录失败');
+      message.error((error as Error)?.message || '获取匹配记录失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -195,7 +132,7 @@ const Matches: React.FC = () => {
       title: '用户',
       key: 'user',
       width: 200,
-      render: (_: any, record: MatchRecord) => (
+      render: (_: unknown, record: MatchRecord) => (
         <Space>
           {record.userAvatar && (
             <img src={record.userAvatar} alt="" style={{ width: 40, height: 40, borderRadius: '50%' }} />
@@ -217,7 +154,7 @@ const Matches: React.FC = () => {
       title: '匹配用户',
       key: 'matchedUser',
       width: 200,
-      render: (_: any, record: MatchRecord) => (
+      render: (_: unknown, record: MatchRecord) => (
         <Space>
           {record.matchedUserAvatar && (
             <img src={record.matchedUserAvatar} alt="" style={{ width: 40, height: 40, borderRadius: '50%' }} />

@@ -1,10 +1,12 @@
-import { useState, useEffect, Key } from 'react';
+import { useState, useEffect, useCallback, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, Popconfirm, Breadcrumb, Modal, Descriptions } from 'antd';
-import { SearchOutlined, MessageOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { interactionAdminApi } from '@/services/api';
+import type { PageResult } from '@/services/types';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Option } = Select;
 
 interface CommentRecord {
@@ -54,7 +56,7 @@ const Comments: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: CommentQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: CommentQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -65,69 +67,19 @@ const Comments: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await interactionApi.getComments(params);
-      // 模拟数据
-      const mockData: CommentRecord[] = [
-        {
-          id: 1,
-          userId: 10001,
-          userNickname: '张三',
-          userAvatar: 'https://via.placeholder.com/50',
-          targetType: 'MOVEMENT',
-          targetId: 1001,
-          targetTitle: '今天天气真好',
-          content: '写得真好！赞一个👍',
-          likeCount: 25,
-          replyCount: 3,
-          status: 'VISIBLE',
-          isTop: false,
-          createdAt: '2024-01-15 14:30:00',
-        },
-        {
-          id: 2,
-          userId: 10002,
-          userNickname: '李四',
-          userAvatar: 'https://via.placeholder.com/50',
-          targetType: 'VIDEO',
-          targetId: 2001,
-          targetTitle: '美食制作教程',
-          content: '这个视频太棒了，已收藏！',
-          likeCount: 128,
-          replyCount: 12,
-          status: 'VISIBLE',
-          isTop: true,
-          createdAt: '2024-01-15 13:20:00',
-        },
-        {
-          id: 3,
-          userId: 10003,
-          userNickname: '王五',
-          userAvatar: 'https://via.placeholder.com/50',
-          targetType: 'MOVEMENT',
-          targetId: 1002,
-          targetTitle: '分享一首诗',
-          content: '不怎么样，没什么意思',
-          likeCount: 2,
-          replyCount: 0,
-          status: 'HIDDEN',
-          isTop: false,
-          createdAt: '2024-01-15 12:00:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(mockData.length);
+      const payload = (await interactionAdminApi.listComments(params)) as PageResult<CommentRecord>;
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取评论列表失败');
+      message.error((error as Error)?.message || '获取评论列表失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -150,11 +102,11 @@ const Comments: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      // TODO: 调用删除评论 API
+      await interactionAdminApi.deleteComment(id);
       message.success('已删除评论');
       fetchData({ page, size: pageSize });
     } catch (error) {
-      message.error('操作失败');
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -194,7 +146,7 @@ const Comments: React.FC = () => {
       title: '用户',
       key: 'user',
       width: 200,
-      render: (_: any, record: CommentRecord) => (
+      render: (_: unknown, record: CommentRecord) => (
         <Space>
           {record.userAvatar && (
             <img src={record.userAvatar} alt="" style={{ width: 40, height: 40, borderRadius: '50%' }} />
@@ -224,7 +176,7 @@ const Comments: React.FC = () => {
       title: '目标',
       key: 'target',
       width: 150,
-      render: (_: any, record: CommentRecord) => (
+      render: (_: unknown, record: CommentRecord) => (
         <div>
           <div style={{ fontSize: 14, marginBottom: 4 }}>{record.targetTitle || `ID: ${record.targetId}`}</div>
           <div style={{ fontSize: 12, color: '#999' }}>ID: {record.targetId}</div>
@@ -235,7 +187,7 @@ const Comments: React.FC = () => {
       title: '互动',
       key: 'interactions',
       width: 120,
-      render: (_: any, record: CommentRecord) => (
+      render: (_: unknown, record: CommentRecord) => (
         <Space size="small">
           <Tag>👍 {record.likeCount}</Tag>
           <Tag>💬 {record.replyCount}</Tag>
@@ -272,7 +224,7 @@ const Comments: React.FC = () => {
       key: 'action',
       width: 150,
       fixed: 'right',
-      render: (_: any, record: CommentRecord) => (
+      render: (_: unknown, record: CommentRecord) => (
         <Space size="small">
           <Button 
             type="link" 

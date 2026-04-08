@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, DatePicker, Descriptions, Form, Input, message, Modal, Space, Table, Tag, Typography } from 'antd';
 import { DownloadOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { logApi } from '@/services/api';
-import type { LogQueryParams, OperationLogDTO, PageResult } from '@/services/types';
+import type { LogQueryParams, OperationLogDTO } from '@/services/types';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -19,55 +19,6 @@ const OperationLogs: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [current, setCurrent] = useState<OperationLogDTO | null>(null);
 
-  const mockData: OperationLogDTO[] = useMemo(
-    () => [
-      {
-        id: 'op_10001',
-        adminId: 1,
-        adminName: '系统管理员',
-        module: '用户管理',
-        action: '禁用用户',
-        targetId: 10001,
-        targetName: 'user:10001',
-        requestParams: { userId: 10001, status: 0 },
-        responseStatus: 200,
-        ip: '127.0.0.1',
-        userAgent: 'Mozilla/5.0',
-        executeTime: 128,
-        createdAt: '2024-01-15 10:20:00',
-      },
-      {
-        id: 'op_10002',
-        adminId: 2,
-        adminName: '运营专员',
-        module: '内容审核',
-        action: '删除动态',
-        targetId: 90001,
-        targetName: 'movement:90001',
-        requestParams: { id: 90001 },
-        responseStatus: 200,
-        ip: '127.0.0.1',
-        userAgent: 'Mozilla/5.0',
-        executeTime: 356,
-        createdAt: '2024-01-15 11:02:00',
-      },
-      {
-        id: 'op_10003',
-        adminId: 1,
-        adminName: '系统管理员',
-        module: '系统管理',
-        action: '登录',
-        requestParams: { username: 'admin' },
-        responseStatus: 401,
-        ip: '127.0.0.1',
-        userAgent: 'Mozilla/5.0',
-        executeTime: 78,
-        createdAt: '2024-01-15 12:00:00',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,36 +28,28 @@ const OperationLogs: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockData);
-      setTotal(mockData.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await logApi.getOperationLogs({
+      const payload = await logApi.getOperationLogs({
         page,
         size: pageSize,
         startTime: query.startTime,
         endTime: query.endTime,
         keyword: query.keyword,
       });
-      const payload = (res.data?.data || res.data) as PageResult<OperationLogDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('getOperationLogs failed, fallback mock:', error);
-      const keyword = query.keyword?.trim();
-      const filtered = mockData.filter((r) => {
-        if (query.adminName && !r.adminName.includes(query.adminName)) return false;
-        if (query.module && !r.module.includes(query.module)) return false;
-        if (query.action && !r.action.includes(query.action)) return false;
-        if (keyword && !(r.adminName.includes(keyword) || r.module.includes(keyword) || r.action.includes(keyword))) return false;
-        return true;
-      });
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('getOperationLogs failed:', error);
+      message.error((error as Error)?.message || '获取操作日志失败');
+      setData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,10 @@
-import { useState, useEffect, Key } from 'react';
+import { useState, useEffect, useCallback, Key } from 'react';
 import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, Popconfirm, Badge, Breadcrumb } from 'antd';
 import { SearchOutlined, UsergroupAddOutlined, DeleteOutlined, BlockOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { socialAdminApi } from '@/services/api';
+import type { PageResult } from '@/services/types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -50,7 +52,7 @@ const Friendships: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: FriendshipQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: FriendshipQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -61,65 +63,19 @@ const Friendships: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await socialApi.getFriendships(params);
-      // 模拟数据
-      const mockData: FriendshipRecord[] = [
-        {
-          id: 1,
-          userId: 10001,
-          userNickname: '张三',
-          userAvatar: 'https://via.placeholder.com/50',
-          friendId: 10002,
-          friendNickname: '李四',
-          friendAvatar: 'https://via.placeholder.com/50',
-          relationshipType: 'DOUBLE',
-          status: 'ACCEPTED',
-          chatCount: 520,
-          lastChatAt: '2024-01-15 14:30:00',
-          createdAt: '2024-01-10 10:00:00',
-        },
-        {
-          id: 2,
-          userId: 10003,
-          userNickname: '王五',
-          userAvatar: 'https://via.placeholder.com/50',
-          friendId: 10004,
-          friendNickname: '赵六',
-          friendAvatar: 'https://via.placeholder.com/50',
-          relationshipType: 'SINGLE',
-          status: 'PENDING',
-          chatCount: 0,
-          createdAt: '2024-01-15 13:20:00',
-        },
-        {
-          id: 3,
-          userId: 10005,
-          userNickname: '孙七',
-          userAvatar: 'https://via.placeholder.com/50',
-          friendId: 10006,
-          friendNickname: '周八',
-          friendAvatar: 'https://via.placeholder.com/50',
-          relationshipType: 'DOUBLE',
-          status: 'BLOCKED',
-          chatCount: 15,
-          lastChatAt: '2024-01-14 12:00:00',
-          createdAt: '2024-01-05 09:00:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(mockData.length);
+      const payload = (await socialAdminApi.listFriendships(params)) as PageResult<FriendshipRecord>;
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取好友关系失败');
+      message.error((error as Error)?.message || '获取好友关系失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -142,21 +98,23 @@ const Friendships: React.FC = () => {
 
   const handleBlock = async (id: number) => {
     try {
-      // TODO: 调用拉黑 API
+      await socialAdminApi.blockFriendship(id);
       message.success('已拉黑该好友');
       fetchData({ page, size: pageSize });
-    } catch (error) {
-      message.error('操作失败');
+    } catch (error: unknown) {
+      console.warn(error);
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
-      // TODO: 调用删除好友 API
+      await socialAdminApi.deleteFriendship(id);
       message.success('已删除好友关系');
       fetchData({ page, size: pageSize });
-    } catch (error) {
-      message.error('操作失败');
+    } catch (error: unknown) {
+      console.warn(error);
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -191,7 +149,7 @@ const Friendships: React.FC = () => {
       title: '用户',
       key: 'user',
       width: 200,
-      render: (_: any, record: FriendshipRecord) => (
+      render: (_: unknown, record: FriendshipRecord) => (
         <Space>
           {record.userAvatar && (
             <img src={record.userAvatar} alt="" style={{ width: 40, height: 40, borderRadius: '50%' }} />
@@ -213,7 +171,7 @@ const Friendships: React.FC = () => {
       title: '好友',
       key: 'friend',
       width: 200,
-      render: (_: any, record: FriendshipRecord) => (
+      render: (_: unknown, record: FriendshipRecord) => (
         <Space>
           {record.friendAvatar && (
             <img src={record.friendAvatar} alt="" style={{ width: 40, height: 40, borderRadius: '50%' }} />
@@ -265,7 +223,7 @@ const Friendships: React.FC = () => {
       key: 'action',
       width: 180,
       fixed: 'right',
-      render: (_: any, record: FriendshipRecord) => (
+      render: (_: unknown, record: FriendshipRecord) => (
         <Space size="small">
           {record.status !== 'BLOCKED' && (
             <Popconfirm

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Table, Typography, DatePicker, Spin } from 'antd';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, Row, Col, Statistic, Typography, DatePicker, Spin } from 'antd';
 import {
   UserAddOutlined,
   UserOutlined,
@@ -18,11 +18,7 @@ const Dashboard: React.FC = () => {
   const [analysisData, setAnalysisData] = useState<DailyAnalysisDTO | null>(null);
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
-  useEffect(() => {
-    fetchAnalysisData();
-  }, [selectedDate]);
-
-  const fetchAnalysisData = async () => {
+  const fetchAnalysisData = useCallback(async () => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -34,18 +30,23 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       const date = selectedDate.format('YYYY-MM-DD');
-      const res = await adminApi.getDailyAnalysis(date);
-      setAnalysisData(res.data);
+      const data = await adminApi.getDailyAnalysis(date);
+      setAnalysisData(data);
     } catch (error) {
       // 401 错误不显示 message，只记录日志
-      if ((error as any)?.response?.status !== 401) {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status !== 401) {
         console.error('Failed to fetch analysis data:', error);
       }
       setAnalysisData(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate]);
+
+  useEffect(() => {
+    fetchAnalysisData();
+  }, [fetchAnalysisData]);
 
   return (
     <div>

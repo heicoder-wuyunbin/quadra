@@ -327,3 +327,37 @@ export interface SlowSqlDTO {
   suggestion?: string;
   createdAt: string;
 }
+
+/**
+ * 管理后台接口访问日志（/v1/system/logs/requests）
+ */
+export interface RequestLogDTO {
+  id: number;
+  service: string;
+  traceId?: string;
+  adminId?: number;
+  method: string;
+  path: string;
+  queryString?: string;
+  statusCode: number;
+  durationMs: number;
+  ipAddress?: string;
+  userAgent?: string;
+  requestHeaders?: string; // JSON string（已脱敏）
+  requestBody?: string;
+  responseBody?: string;
+  createdAt: string;
+}
+
+export interface RequestLogQueryParams {
+  page?: number;
+  size?: number;
+  service?: string;
+  adminId?: number;
+  statusCode?: number;
+  method?: string;
+  pathKeyword?: string;
+  traceId?: string;
+  startTime?: string; // yyyy-MM-dd HH:mm:ss
+  endTime?: string; // yyyy-MM-dd HH:mm:ss
+}

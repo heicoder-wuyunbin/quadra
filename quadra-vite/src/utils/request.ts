@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import type { ApiResult } from '@/services/types';
 
 // 创建 axios 实例，所有请求都通过网关
 // 在开发环境中，Vite 会代理 /v1 路径到 http://localhost:18080
@@ -17,8 +18,9 @@ apiClient.interceptors.request.use(
     // 从 localStorage 获取 accessToken
     const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
-      // 添加 Bearer 前缀
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      // 管理端鉴权：使用 Authorization: Bearer <token>
+      // 若 token 已包含 Bearer 前缀，则直接透传，避免重复拼接。
+      config.headers.Authorization = accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`;
       console.log('已添加 Token');
     } else {
       console.log('未找到 Token，使用公开访问');
@@ -41,7 +43,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response;
       const requestUrl: string = error.config?.url || '';
-      const isAdminApi = requestUrl.startsWith('/v1/system');
+      // 管理后台：所有请求都经由网关（统一 /api/v1 前缀）
+      const isAdminApi = requestUrl.startsWith('/api/v1');
       
       if (status === 401) {
         // 仅对管理端接口触发强制登出，避免普通用户接口误伤
@@ -94,8 +97,37 @@ apiClient.interceptors.response.use(
 );
 
 // 通用请求方法
-const request = async (config: any) => {
-  return apiClient.request(config);
+const request = async <D = unknown, R = unknown>(
+  config: AxiosRequestConfig<D>
+): Promise<AxiosResponse<R>> => {
+  return apiClient.request<R, AxiosResponse<R>, D>(config);
+};
+
+/**
+ * 最佳实践：管理后台统一使用后端标准返回结构 Result<T>，这里直接解包成 T。
+ * - 成功：返回 data
+ * - 失败：抛出 Error（包含 code/message/requestId）
+ *
+ * 说明：管理后台请求统一使用 /api/v1 前缀，通过 Vite proxy/生产网关转发到后端真实 /v1。
+ */
+export const requestApi = async <T, D = unknown>(
+  config: AxiosRequestConfig<D>
+): Promise<T> => {
+  const res = await request<D, ApiResult<T>>(config);
+  const body = res.data;
+
+  // 兼容极端情况：如果后端没包 Result<T>（不推荐），则直接返回
+  if (!body || typeof body !== 'object' || !('success' in body) || !('data' in body)) {
+    return body as unknown as T;
+  }
+
+  const result = body as ApiResult<T>;
+  if (result.success) return result.data;
+
+  const err: Error & { code?: number; requestId?: string } = new Error(result.message || '请求失败');
+  err.code = result.code;
+  err.requestId = result.requestId;
+  throw err;
 };
 
 export default request;

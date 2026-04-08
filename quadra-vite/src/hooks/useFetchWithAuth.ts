@@ -7,7 +7,7 @@ import { useEffect } from 'react';
  */
 export const useFetchWithAuth = (
   fetchData: () => Promise<void>,
-  dependencies: any[] = []
+  dependencies: unknown[] = []
 ) => {
   useEffect(() => {
     // 检查是否已登录

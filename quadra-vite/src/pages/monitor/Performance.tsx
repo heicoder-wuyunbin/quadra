@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Breadcrumb, Button, Card, Col, DatePicker, Form, Input, Progress, Row, Space, Statistic, Table, Tag, Typography } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
+import { monitorApi } from '@/services/api';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -26,70 +26,7 @@ const Performance: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  // TODO：后端补齐监控接口后替换为真实 API（如 /v1/monitor/performance）
-  const mockData: PerformanceSnapshot[] = useMemo(
-    () => [
-      {
-        id: 'perf_gateway',
-        service: 'quadra-gateway',
-        cpuPercent: 18,
-        memPercent: 42,
-        heapUsedMb: 320,
-        heapMaxMb: 1024,
-        gcCount: 12,
-        threadCount: 86,
-        rps: 210,
-        p95Ms: 120,
-        errorRate: 0.01,
-        updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        id: 'perf_user',
-        service: 'quadra-user',
-        cpuPercent: 25,
-        memPercent: 55,
-        heapUsedMb: 540,
-        heapMaxMb: 1024,
-        gcCount: 18,
-        threadCount: 110,
-        rps: 80,
-        p95Ms: 180,
-        errorRate: 0.02,
-        updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        id: 'perf_content',
-        service: 'quadra-content',
-        cpuPercent: 68,
-        memPercent: 78,
-        heapUsedMb: 860,
-        heapMaxMb: 1024,
-        gcCount: 56,
-        threadCount: 180,
-        rps: 60,
-        p95Ms: 1600,
-        errorRate: 0.08,
-        updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      },
-      {
-        id: 'perf_system',
-        service: 'quadra-system',
-        cpuPercent: 9,
-        memPercent: 38,
-        heapUsedMb: 280,
-        heapMaxMb: 1024,
-        gcCount: 8,
-        threadCount: 70,
-        rps: 40,
-        p95Ms: 90,
-        errorRate: 0.005,
-        updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      },
-    ],
-    []
-  );
-
-  const [data, setData] = useState<PerformanceSnapshot[]>(mockData);
+  const [data, setData] = useState<PerformanceSnapshot[]>([]);
 
   const summary = useMemo(() => {
     const cpu = data.reduce((s, r) => s + r.cpuPercent, 0) / (data.length || 1);
@@ -99,25 +36,21 @@ const Performance: React.FC = () => {
     return { cpu, mem, rps, err };
   }, [data]);
 
-  const refresh = async () => {
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const fetchData = useCallback(async (keyword?: string) => {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) return;
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 400));
-      setData(
-        data.map((item) => ({
-          ...item,
-          updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-          cpuPercent: Math.max(0, Math.min(95, Math.round(item.cpuPercent + (Math.random() * 10 - 5)))),
-          memPercent: Math.max(0, Math.min(95, Math.round(item.memPercent + (Math.random() * 10 - 5)))),
-          rps: Math.max(0, Math.round(item.rps + (Math.random() * 10 - 5))),
-          p95Ms: Math.max(0, Math.round(item.p95Ms + (Math.random() * 200 - 100))),
-          errorRate: Math.max(0, Math.min(0.5, item.errorRate + (Math.random() * 0.02 - 0.01))),
-        }))
-      );
+      const list = await monitorApi.listPerformance(keyword ? { keyword } : undefined);
+      setData(list as PerformanceSnapshot[]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleSearch = async () => {
     const values = await form.validateFields();
@@ -125,12 +58,12 @@ const Performance: React.FC = () => {
     const range = values.range as [Dayjs, Dayjs] | undefined;
     // 这里 range 只是预留：真实联调时传给后端即可；mock 仅按 keyword 过滤
     void range;
-    setData(keyword ? mockData.filter((r) => r.service.includes(keyword)) : mockData);
+    fetchData(keyword || undefined);
   };
 
   const handleReset = () => {
     form.resetFields();
-    setData(mockData);
+    fetchData();
   };
 
   const columns = [

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Breadcrumb, Button, Card, DatePicker, Descriptions, Form, Input, Modal, Space, Table, Tag, Typography } from 'antd';
+import { useEffect, useState } from 'react';
+import { Breadcrumb, Button, Card, DatePicker, Descriptions, Form, Input, Modal, Space, Table, Tag, Typography, message } from 'antd';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { logApi } from '@/services/api';
-import type { LogQueryParams, PageResult, SlowSqlDTO } from '@/services/types';
+import type { LogQueryParams, SlowSqlDTO } from '@/services/types';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -19,32 +19,6 @@ const SlowSQL: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [current, setCurrent] = useState<SlowSqlDTO | null>(null);
 
-  const mockData: SlowSqlDTO[] = useMemo(
-    () => [
-      {
-        id: 'sql_10001',
-        db: 'quadra_user',
-        sql: 'SELECT * FROM user_profile WHERE city = ? ORDER BY created_at DESC LIMIT 50;',
-        executeTime: 1860,
-        rowsExamined: 120000,
-        explain: 'type=ALL; key=NULL; rows=120000; Extra=Using where; Using filesort',
-        suggestion: '为 city + created_at 建联合索引；避免 SELECT *。',
-        createdAt: '2024-01-15 11:10:00',
-      },
-      {
-        id: 'sql_10002',
-        db: 'quadra_content',
-        sql: 'SELECT count(*) FROM movement WHERE state = 1;',
-        executeTime: 2400,
-        rowsExamined: 800000,
-        explain: 'type=ALL; rows=800000',
-        suggestion: '为 state 建索引或使用分区表。',
-        createdAt: '2024-01-15 11:40:00',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,34 +28,28 @@ const SlowSQL: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockData);
-      setTotal(mockData.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await logApi.getSlowSql({
+      const payload = await logApi.getSlowSql({
         page,
         size: pageSize,
         startTime: query.startTime,
         endTime: query.endTime,
         keyword: query.keyword,
       });
-      const payload = (res.data?.data || res.data) as PageResult<SlowSqlDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('getSlowSql failed, fallback mock:', error);
-      const keyword = query.keyword?.trim();
-      const filtered = mockData.filter((r) => {
-        if (query.db && r.db !== query.db) return false;
-        if (keyword && !r.sql.includes(keyword)) return false;
-        return true;
-      });
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('getSlowSql failed:', error);
+      message.error((error as Error)?.message || '获取慢查询日志失败');
+      setData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }

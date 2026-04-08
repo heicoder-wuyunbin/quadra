@@ -1,38 +1,16 @@
-import { useState, useEffect, Key } from 'react';
-import { Card, Table, Typography, Space, Button, Input, Form, message, Tag, Select, Popconfirm, Breadcrumb, Modal, Descriptions, Badge } from 'antd';
-import { SearchOutlined, MailOutlined, SendOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { useState, useEffect, useCallback, Key } from 'react';
+import { Card, Table, Typography, Space, Button, Form, message, Tag, Select, Popconfirm, Breadcrumb, Modal, Descriptions } from 'antd';
+import { SearchOutlined, SendOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
+import { messageApi } from '@/services/api';
+import type { NoticeDTO, NoticeQueryParams } from '@/services/types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-interface NoticeRecord {
-  id: number;
-  title: string;
-  content: string;
-  type: 'SYSTEM' | 'ACTIVITY' | 'REMINDER' | 'CUSTOM';
-  targetType: 'ALL' | 'USER' | 'GROUP';
-  targetIds?: number[];
-  senderId: number;
-  senderName: string;
-  isRead: boolean;
-  readCount: number;
-  status: 'DRAFT' | 'SENT' | 'DELETED';
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
-  scheduledAt?: string;
-  sentAt?: string;
-  createdAt: string;
-}
-
-interface NoticeQueryParams {
-  page: number;
-  size: number;
-  type?: string;
-  status?: string;
-  priority?: string;
-}
+type NoticeRecord = NoticeDTO;
 
 const Notices: React.FC = () => {
   const navigate = useNavigate();
@@ -57,7 +35,7 @@ const Notices: React.FC = () => {
     columnWidth: 50,
   };
 
-  const fetchData = async (params: NoticeQueryParams = { page, size: pageSize }) => {
+  const fetchData = useCallback(async (params: NoticeQueryParams = { page, size: pageSize }) => {
     // 检查是否已登录
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -68,86 +46,26 @@ const Notices: React.FC = () => {
 
     setLoading(true);
     try {
-      // TODO: 替换为实际的 API 调用
-      // const response = await messageApi.getNotices(params);
-      // 模拟数据
-      const mockData: NoticeRecord[] = [
-        {
-          id: 1,
-          title: '系统维护通知',
-          content: '尊敬的用户，我们将于今晚 23:00-01:00 进行系统维护，届时部分功能可能无法正常使用。给您带来的不便敬请谅解。',
-          type: 'SYSTEM',
-          targetType: 'ALL',
-          senderId: 1,
-          senderName: '系统管理员',
-          isRead: true,
-          readCount: 1024,
-          status: 'SENT',
-          priority: 'HIGH',
-          sentAt: '2024-01-15 10:00:00',
-          createdAt: '2024-01-15 09:30:00',
-        },
-        {
-          id: 2,
-          title: '新用户福利',
-          content: '欢迎加入！新用户注册即可享受 7 天 VIP 会员体验，快来体验更多功能吧！',
-          type: 'ACTIVITY',
-          targetType: 'USER',
-          targetIds: [10001, 10002, 10003],
-          senderId: 2,
-          senderName: '运营专员',
-          isRead: false,
-          readCount: 520,
-          status: 'SENT',
-          priority: 'NORMAL',
-          sentAt: '2024-01-15 14:00:00',
-          createdAt: '2024-01-15 13:30:00',
-        },
-        {
-          id: 3,
-          title: '账号安全提醒',
-          content: '检测到您的账号在异地登录，如非本人操作，请及时修改密码。',
-          type: 'REMINDER',
-          targetType: 'USER',
-          targetIds: [10004],
-          senderId: 1,
-          senderName: '系统管理员',
-          isRead: true,
-          readCount: 1,
-          status: 'SENT',
-          priority: 'URGENT',
-          sentAt: '2024-01-15 16:00:00',
-          createdAt: '2024-01-15 15:50:00',
-        },
-        {
-          id: 4,
-          title: '春节活动预告',
-          content: '春节期间将举办线上交友活动，丰厚奖励等你来拿！敬请期待！',
-          type: 'ACTIVITY',
-          targetType: 'ALL',
-          senderId: 2,
-          senderName: '运营专员',
-          isRead: false,
-          readCount: 0,
-          status: 'DRAFT',
-          priority: 'LOW',
-          scheduledAt: '2024-01-20 10:00:00',
-          createdAt: '2024-01-15 17:00:00',
-        },
-      ];
-      
-      setData(mockData);
-      setTotal(mockData.length);
+      const payload = await messageApi.listNotices({
+        page: params.page,
+        size: params.size,
+        type: params.type,
+        status: params.status,
+        priority: params.priority,
+      });
+      setData(payload.records || payload.list || []);
+      setTotal(payload.total || 0);
     } catch (error) {
-      message.error('获取站内信列表失败');
+      console.warn(error);
+      message.error((error as Error)?.message || '获取站内信列表失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSearch = () => {
     setPage(1);
@@ -170,11 +88,12 @@ const Notices: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      // TODO: 调用删除站内信 API
+      await messageApi.deleteNotice(id);
       message.success('已删除站内信');
-      fetchData({ page, size: pageSize });
+      fetchData({ page, size: pageSize, type: typeFilter, status: statusFilter, priority: priorityFilter });
     } catch (error) {
-      message.error('操作失败');
+      console.warn(error);
+      message.error((error as Error)?.message || '操作失败');
     }
   };
 
@@ -287,7 +206,7 @@ const Notices: React.FC = () => {
       key: 'action',
       width: 150,
       fixed: 'right',
-      render: (_: any, record: NoticeRecord) => (
+      render: (_: unknown, record: NoticeRecord) => (
         <Space size="small">
           <Button 
             type="link" 

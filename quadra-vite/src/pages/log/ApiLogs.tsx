@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Breadcrumb, Button, Card, Form, Input, Select, Space, Table, Tag, Typography } from 'antd';
+import { useEffect, useState } from 'react';
+import { Breadcrumb, Button, Card, Form, Input, Select, Space, Table, Tag, Typography, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { logApi } from '@/services/api';
-import type { ApiStatDTO, LogQueryParams, PageResult } from '@/services/types';
+import type { ApiStatDTO, LogQueryParams } from '@/services/types';
 
 const { Title } = Typography;
 
@@ -16,42 +16,6 @@ const ApiLogs: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [query, setQuery] = useState<LogQueryParams & { method?: string; keyword?: string }>({});
 
-  const mockData: ApiStatDTO[] = useMemo(
-    () => [
-      {
-        id: 'api_1',
-        method: 'GET',
-        path: '/v1/system/users',
-        count: 1234,
-        avgTime: 120,
-        p95Time: 350,
-        errorRate: 0.01,
-        lastCalledAt: '2024-01-15 12:00:00',
-      },
-      {
-        id: 'api_2',
-        method: 'POST',
-        path: '/v1/system/admin/login',
-        count: 520,
-        avgTime: 80,
-        p95Time: 160,
-        errorRate: 0.12,
-        lastCalledAt: '2024-01-15 12:02:00',
-      },
-      {
-        id: 'api_3',
-        method: 'GET',
-        path: '/v1/content/timeline',
-        count: 884,
-        avgTime: 980,
-        p95Time: 1800,
-        errorRate: 0.03,
-        lastCalledAt: '2024-01-15 12:01:20',
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,32 +25,26 @@ const ApiLogs: React.FC = () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       console.log('未登录，不请求数据');
-      setData(mockData);
-      setTotal(mockData.length);
+      setData([]);
+      setTotal(0);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await logApi.getApiStats({
+      const payload = await logApi.getApiStats({
         page,
         size: pageSize,
         keyword: query.keyword,
       });
-      const payload = (res.data?.data || res.data) as PageResult<ApiStatDTO>;
       const records = payload.records || payload.list || [];
       setData(records);
       setTotal(payload.total || 0);
     } catch (error) {
-      console.warn('getApiStats failed, fallback mock:', error);
-      const keyword = query.keyword?.trim();
-      const filtered = mockData.filter((r) => {
-        if (query.method && r.method !== query.method) return false;
-        if (keyword && !r.path.includes(keyword)) return false;
-        return true;
-      });
-      setData(filtered);
-      setTotal(filtered.length);
+      console.warn('getApiStats failed:', error);
+      message.error((error as Error)?.message || '获取接口日志失败');
+      setData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
