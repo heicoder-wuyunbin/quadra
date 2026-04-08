@@ -23,6 +23,14 @@ public class SysOperateLogDO {
     private Long targetId;
     
     private String ipAddress;
+
+    private String userAgent;
+
+    private String requestParams;
+
+    private Integer responseStatus;
+
+    private Integer executeTime;
     
     private LocalDateTime createdAt;
 }

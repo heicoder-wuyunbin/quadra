@@ -1,23 +1,26 @@
 package com.quadra.system.adapter.in.web;
 
 import com.quadra.system.adapter.in.web.common.Result;
-import com.quadra.system.application.port.in.dto.ApiStatDTO;
-import com.quadra.system.application.port.in.dto.PageResult;
+import com.quadra.system.application.port.in.command.MarkErrorHandledUseCase;
+import com.quadra.system.application.port.in.dto.*;
 import com.quadra.system.application.port.in.query.ListApiStatsQuery;
+import com.quadra.system.application.port.in.query.ListErrorLogsQuery;
+import com.quadra.system.application.port.in.query.ListLoginLogsQuery;
+import com.quadra.system.application.port.in.query.ListOperationLogsQuery;
+import com.quadra.system.adapter.in.web.context.AdminContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 管理后台日志接口（系统服务内置）
- *
- * 说明：
- * - 目前仅「访问日志」与「操作日志」为真实落库数据
- * - 其它类型日志先提供空列表接口，避免前端 404，后续再逐步补齐
  */
 @Tag(name = "SystemLog", description = "管理后台日志接口")
 @RestController
@@ -25,9 +28,21 @@ import java.util.Collections;
 public class SystemLogController {
 
     private final ListApiStatsQuery listApiStatsQuery;
+    private final ListOperationLogsQuery listOperationLogsQuery;
+    private final ListLoginLogsQuery listLoginLogsQuery;
+    private final ListErrorLogsQuery listErrorLogsQuery;
+    private final MarkErrorHandledUseCase markErrorHandledUseCase;
 
-    public SystemLogController(ListApiStatsQuery listApiStatsQuery) {
+    public SystemLogController(ListApiStatsQuery listApiStatsQuery,
+                               ListOperationLogsQuery listOperationLogsQuery,
+                               ListLoginLogsQuery listLoginLogsQuery,
+                               ListErrorLogsQuery listErrorLogsQuery,
+                               MarkErrorHandledUseCase markErrorHandledUseCase) {
         this.listApiStatsQuery = listApiStatsQuery;
+        this.listOperationLogsQuery = listOperationLogsQuery;
+        this.listLoginLogsQuery = listLoginLogsQuery;
+        this.listErrorLogsQuery = listErrorLogsQuery;
+        this.markErrorHandledUseCase = markErrorHandledUseCase;
     }
 
     @Operation(summary = "操作日志", description = "分页查询管理员操作审计日志（sys_operate_log）")
@@ -39,12 +54,24 @@ public class SystemLogController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        // 重要：adapter-in-web 层不应直接依赖 MyBatis-Plus 与 adapter-out 的 Mapper/Entity。
-        // 这里先返回空列表，避免编译失败与前端 404；后续如需真实数据，建议通过 application port + adapter-out 实现查询。
-        return Result.success(PageResult.of(Collections.emptyList(), 0, page, size));
+        PageResult<OperationLogDTO> dtoPage = listOperationLogsQuery.listOperationLogs(keyword, startTime, endTime, page, size);
+        List<OperationLogVO> vos = dtoPage.records().stream().map(dto -> new OperationLogVO(
+                dto.id().toString(),
+                dto.adminId(),
+                dto.adminName(),
+                dto.module(),
+                dto.action(),
+                dto.targetId(),
+                dto.responseStatus(),
+                dto.executeTime(),
+                dto.ipAddress(),
+                dto.userAgent(),
+                dto.createdAt() != null ? dto.createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : null
+        )).collect(Collectors.toList());
+        return Result.success(PageResult.of(vos, dtoPage.total(), dtoPage.current(), dtoPage.size()));
     }
 
-    @Operation(summary = "登录日志", description = "暂未落库，先返回空列表（避免前端 404）")
+    @Operation(summary = "登录日志", description = "分页查询管理员登录日志（sys_login_log）")
     @GetMapping("/login")
     public Result<PageResult<LoginLogVO>> listLoginLogs(
             @RequestParam(required = false) String keyword,
@@ -53,10 +80,22 @@ public class SystemLogController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return Result.success(PageResult.of(Collections.emptyList(), 0, page, size));
+        PageResult<LoginLogDTO> dtoPage = listLoginLogsQuery.listLoginLogs(keyword, startTime, endTime, page, size);
+        List<LoginLogVO> vos = dtoPage.records().stream().map(dto -> new LoginLogVO(
+                dto.id().toString(),
+                dto.adminId(),
+                dto.adminName(),
+                dto.ip(),
+                dto.location(),
+                dto.userAgent(),
+                dto.status(),
+                dto.reason(),
+                dto.createdAt() != null ? dto.createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : null
+        )).collect(Collectors.toList());
+        return Result.success(PageResult.of(vos, dtoPage.total(), dtoPage.current(), dtoPage.size()));
     }
 
-    @Operation(summary = "错误日志", description = "暂未落库，先返回空列表（避免前端 404）")
+    @Operation(summary = "错误日志", description = "分页查询系统错误日志（sys_error_log）")
     @GetMapping("/error")
     public Result<PageResult<ErrorLogVO>> listErrorLogs(
             @RequestParam(required = false) String level,
@@ -68,12 +107,33 @@ public class SystemLogController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return Result.success(PageResult.of(Collections.emptyList(), 0, page, size));
+        PageResult<ErrorLogDTO> dtoPage = listErrorLogsQuery.listErrorLogs(level, service, handled, keyword, startTime, endTime, page, size);
+        List<ErrorLogVO> vos = dtoPage.records().stream().map(dto -> new ErrorLogVO(
+                dto.id().toString(),
+                dto.level(),
+                dto.service(),
+                dto.message(),
+                dto.stackTrace(),
+                dto.userId(),
+                dto.requestId(),
+                dto.url(),
+                dto.params(),
+                dto.handled(),
+                dto.handledBy(),
+                dto.handledAt() != null ? dto.handledAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : null,
+                dto.createdAt() != null ? dto.createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : null
+        )).collect(Collectors.toList());
+        return Result.success(PageResult.of(vos, dtoPage.total(), dtoPage.current(), dtoPage.size()));
     }
 
-    @Operation(summary = "标记错误已处理", description = "暂未实现持久化，先返回成功（避免前端 404）")
+    @Operation(summary = "标记错误已处理", description = "将错误日志标记为已处理")
     @PutMapping("/error/{id}/handled")
     public Result<Void> markErrorHandled(@PathVariable("id") String id, @RequestBody(required = false) Object body) {
+        Long adminId = AdminContext.getAdminId();
+        String adminName = "Admin_" + (adminId != null ? adminId : "Unknown");
+        // 如果想拿真实姓名，可以通过 AdminQueryPort 或注入 AdminApplicationService 查询。
+        // 这里先用固定格式，后续完善认证上下文。
+        markErrorHandledUseCase.markHandled(id, adminId, adminName);
         return Result.success();
     }
 
