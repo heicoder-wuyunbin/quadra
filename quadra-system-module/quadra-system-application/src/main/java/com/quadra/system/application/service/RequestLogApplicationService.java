@@ -2,8 +2,10 @@ package com.quadra.system.application.service;
 
 import com.quadra.system.application.port.in.SaveRequestLogUseCase;
 import com.quadra.system.application.port.in.command.SaveRequestLogCommand;
+import com.quadra.system.application.port.in.dto.ApiStatDTO;
 import com.quadra.system.application.port.in.dto.PageResult;
 import com.quadra.system.application.port.in.dto.RequestLogDTO;
+import com.quadra.system.application.port.in.query.ListApiStatsQuery;
 import com.quadra.system.application.port.in.query.ListRequestLogsQuery;
 import com.quadra.system.application.port.out.RequestLogRepositoryPort;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class RequestLogApplicationService implements SaveRequestLogUseCase, ListRequestLogsQuery {
+public class RequestLogApplicationService implements SaveRequestLogUseCase, ListRequestLogsQuery, ListApiStatsQuery {
 
     private final RequestLogRepositoryPort requestLogRepositoryPort;
 
@@ -56,5 +58,9 @@ public class RequestLogApplicationService implements SaveRequestLogUseCase, List
     ) {
         return requestLogRepositoryPort.page(service, adminId, statusCode, method, pathKeyword, traceId, startTime, endTime, page, size);
     }
-}
 
+    @Override
+    public PageResult<ApiStatDTO> list(String keyword, String method, int page, int size) {
+        return requestLogRepositoryPort.statsPage(keyword, method, page, size);
+    }
+}

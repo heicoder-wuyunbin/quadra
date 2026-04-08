@@ -1,7 +1,9 @@
 package com.quadra.system.adapter.in.web;
 
 import com.quadra.system.adapter.in.web.common.Result;
+import com.quadra.system.application.port.in.dto.ApiStatDTO;
 import com.quadra.system.application.port.in.dto.PageResult;
+import com.quadra.system.application.port.in.query.ListApiStatsQuery;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +23,12 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/system/logs")
 public class SystemLogController {
+
+    private final ListApiStatsQuery listApiStatsQuery;
+
+    public SystemLogController(ListApiStatsQuery listApiStatsQuery) {
+        this.listApiStatsQuery = listApiStatsQuery;
+    }
 
     @Operation(summary = "操作日志", description = "分页查询管理员操作审计日志（sys_operate_log）")
     @GetMapping("/operation")
@@ -69,15 +77,16 @@ public class SystemLogController {
         return Result.success();
     }
 
-    @Operation(summary = "接口日志统计", description = "暂未落库，先返回空列表（避免前端 404）")
+    @Operation(summary = "接口日志统计", description = "聚合 sys_request_log，提供接口调用次数/平均耗时/错误率等统计")
     @GetMapping("/api")
-    public Result<PageResult<ApiStatVO>> listApiStats(
+    public Result<PageResult<ApiStatDTO>> listApiStats(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String method,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return Result.success(PageResult.of(Collections.emptyList(), 0, page, size));
+        PageResult<ApiStatDTO> result = listApiStatsQuery.list(keyword, method, page, size);
+        return Result.success(result);
     }
 
     @Operation(summary = "慢查询日志", description = "暂未落库，先返回空列表（避免前端 404）")
@@ -136,16 +145,7 @@ public class SystemLogController {
             String createdAt
     ) {}
 
-    public record ApiStatVO(
-            String id,
-            String method,
-            String path,
-            Long count,
-            Long avgTime,
-            Long p95Time,
-            Double errorRate,
-            String lastCalledAt
-    ) {}
+    // ApiStatDTO 已与前端字段对齐，这里不再单独定义 VO
 
     public record SlowSqlVO(
             String id,

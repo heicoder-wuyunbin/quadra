@@ -1,6 +1,7 @@
 package com.quadra.system.infrastructure.config;
 
 import com.quadra.system.application.port.in.dto.PageResult;
+import com.quadra.system.application.port.in.dto.ApiStatDTO;
 import com.quadra.system.application.port.in.dto.RequestLogDTO;
 import com.quadra.system.application.port.out.RequestLogRepositoryPort;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -62,6 +63,69 @@ public class JdbcRequestLogRepository implements RequestLogRepositoryPort {
         } catch (Exception ignored) {
             // 日志写库失败不影响主流程
         }
+    }
+
+    @Override
+    public PageResult<ApiStatDTO> statsPage(String keyword, String method, int page, int size) {
+        int safePage = Math.max(1, page);
+        int safeSize = Math.max(1, size);
+        int offset = (safePage - 1) * safeSize;
+
+        StringBuilder where = new StringBuilder(" WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+        if (notBlank(method)) {
+            where.append(" AND method = ? ");
+            params.add(method);
+        }
+        if (notBlank(keyword)) {
+            where.append(" AND path LIKE ? ");
+            params.add("%" + keyword + "%");
+        }
+
+        long total = queryApiStatsTotal(where.toString(), params);
+
+        final String sql = """
+                SELECT CONCAT(method, ':', path) AS id,
+                       method,
+                       path,
+                       COUNT(1) AS cnt,
+                       CAST(AVG(duration_ms) AS SIGNED) AS avg_time,
+                       NULL AS p95_time,
+                       (SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END) / COUNT(1)) AS error_rate,
+                       MAX(created_at) AS last_called_at
+                FROM sys_request_log
+                %s
+                GROUP BY method, path
+                ORDER BY last_called_at DESC
+                LIMIT ? OFFSET ?
+                """.formatted(where);
+
+        List<ApiStatDTO> records = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int idx = bindParams(ps, params);
+            ps.setInt(idx++, safeSize);
+            ps.setInt(idx, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    records.add(new ApiStatDTO(
+                            rs.getString("id"),
+                            rs.getString("method"),
+                            rs.getString("path"),
+                            rs.getLong("cnt"),
+                            rs.getLong("avg_time"),
+                            null,
+                            rs.getDouble("error_rate"),
+                            rs.getTimestamp("last_called_at") == null ? null : rs.getTimestamp("last_called_at").toLocalDateTime()
+                    ));
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return PageResult.of(records, total, safePage, safeSize);
     }
 
     @Override
@@ -158,6 +222,25 @@ public class JdbcRequestLogRepository implements RequestLogRepositoryPort {
         return PageResult.of(records, total, safePage, safeSize);
     }
 
+    private long queryApiStatsTotal(String whereSql, List<Object> params) {
+        final String sql = """
+                SELECT COUNT(1) FROM (
+                    SELECT 1
+                    FROM sys_request_log %s
+                    GROUP BY method, path
+                ) t
+                """.formatted(whereSql);
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            bindParams(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
+    }
+
     private long queryTotal(String whereSql, List<Object> params) {
         final String sql = "SELECT COUNT(1) FROM sys_request_log " + whereSql;
         try (Connection conn = dataSource.getConnection();
@@ -196,4 +279,3 @@ public class JdbcRequestLogRepository implements RequestLogRepositoryPort {
         return s == null || s.isBlank() ? def : s;
     }
 }
-

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.quadra.system.adapter.out.persistence.entity.SysRequestLogDO;
 import com.quadra.system.adapter.out.persistence.mapper.SysRequestLogMapper;
+import com.quadra.system.adapter.out.persistence.mapper.dto.ApiStatRow;
+import com.quadra.system.application.port.in.dto.ApiStatDTO;
 import com.quadra.system.application.port.in.dto.PageResult;
 import com.quadra.system.application.port.in.dto.RequestLogDTO;
 import com.quadra.system.application.port.out.RequestLogRepositoryPort;
@@ -38,6 +40,31 @@ public class RequestLogRepositoryImpl implements RequestLogRepositoryPort {
         logDO.setRequestBody(log.requestBody());
         logDO.setResponseBody(log.responseBody());
         sysRequestLogMapper.insert(logDO);
+    }
+
+    @Override
+    public PageResult<ApiStatDTO> statsPage(String keyword, String method, int page, int size) {
+        int safePage = Math.max(1, page);
+        int safeSize = Math.max(1, size);
+        long offset = (long) (safePage - 1) * safeSize;
+
+        Long total = sysRequestLogMapper.countApiStats(keyword, method);
+        List<ApiStatRow> rows = sysRequestLogMapper.selectApiStats(keyword, method, safeSize, offset);
+
+        List<ApiStatDTO> records = rows.stream()
+                .map(r -> new ApiStatDTO(
+                        r.getId(),
+                        r.getMethod(),
+                        r.getPath(),
+                        r.getCount(),
+                        r.getAvgTime(),
+                        r.getP95Time(),
+                        r.getErrorRate(),
+                        r.getLastCalledAt()
+                ))
+                .toList();
+
+        return PageResult.of(records, total == null ? 0 : total, safePage, safeSize);
     }
 
     @Override
@@ -107,4 +134,3 @@ public class RequestLogRepositoryImpl implements RequestLogRepositoryPort {
         );
     }
 }
-

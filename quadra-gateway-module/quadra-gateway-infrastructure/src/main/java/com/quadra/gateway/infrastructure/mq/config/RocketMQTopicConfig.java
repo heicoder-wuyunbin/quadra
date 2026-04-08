@@ -31,4 +31,9 @@ public class RocketMQTopicConfig {
      * 社交事件 Topic
      */
     private String socialEvent;
+
+    /**
+     * 接口请求日志 Topic（网关采集 -> system 服务落库）
+     */
+    private String requestLog;
 }
