@@ -8,6 +8,9 @@ import com.quadra.system.adapter.out.persistence.entity.SysOperateLogDO;
 import com.quadra.system.adapter.out.persistence.mapper.SysErrorLogMapper;
 import com.quadra.system.adapter.out.persistence.mapper.SysLoginLogMapper;
 import com.quadra.system.adapter.out.persistence.mapper.SysOperateLogMapper;
+import com.quadra.system.application.port.in.command.SaveErrorLogCommand;
+import com.quadra.system.application.port.in.command.SaveLoginLogCommand;
+import com.quadra.system.application.port.in.command.SaveOperationLogCommand;
 import com.quadra.system.application.port.in.dto.ErrorLogDTO;
 import com.quadra.system.application.port.in.dto.LoginLogDTO;
 import com.quadra.system.application.port.in.dto.OperationLogDTO;
@@ -168,5 +171,52 @@ public class SystemLogRepositoryImpl implements SystemLogRepositoryPort {
             errorLog.setHandledAt(LocalDateTime.now());
             errorLogMapper.updateById(errorLog);
         }
+    }
+
+    @Override
+    public void saveOperationLog(SaveOperationLogCommand command) {
+        SysOperateLogDO log = new SysOperateLogDO();
+        log.setAdminId(command.adminId());
+        log.setAdminName(command.adminName());
+        log.setModule(command.module());
+        log.setAction(command.action());
+        log.setTargetId(command.targetId());
+        log.setIpAddress(command.ipAddress());
+        log.setUserAgent(command.userAgent());
+        log.setRequestParams(command.requestParams());
+        log.setResponseStatus(command.responseStatus());
+        log.setExecuteTime(command.executeTime());
+        log.setCreatedAt(LocalDateTime.now());
+        operateLogMapper.insert(log);
+    }
+
+    @Override
+    public void saveLoginLog(SaveLoginLogCommand command) {
+        SysLoginLogDO log = new SysLoginLogDO();
+        log.setAdminId(command.adminId());
+        log.setAdminName(command.adminName());
+        log.setIp(command.ip());
+        log.setLocation(command.location());
+        log.setUserAgent(command.userAgent());
+        log.setStatus(command.status());
+        log.setReason(command.reason());
+        log.setCreatedAt(LocalDateTime.now());
+        loginLogMapper.insert(log);
+    }
+
+    @Override
+    public void saveErrorLog(SaveErrorLogCommand command) {
+        SysErrorLogDO log = new SysErrorLogDO();
+        log.setLevel(command.level());
+        log.setService(command.service());
+        log.setMessage(command.message());
+        log.setStackTrace(command.stackTrace());
+        log.setUserId(command.userId());
+        log.setRequestId(command.requestId());
+        log.setUrl(command.url());
+        log.setParams(command.params());
+        log.setHandled(false);
+        log.setCreatedAt(LocalDateTime.now());
+        errorLogMapper.insert(log);
     }
 }

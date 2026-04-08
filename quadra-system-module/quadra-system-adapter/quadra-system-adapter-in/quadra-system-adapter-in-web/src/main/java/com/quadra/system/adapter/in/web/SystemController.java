@@ -11,10 +11,12 @@ import com.quadra.system.application.port.in.query.GetMenuTreeQuery;
 import com.quadra.system.application.port.in.query.ListAdminsQuery;
 import com.quadra.system.application.port.in.query.ListUsersQuery;
 import com.quadra.system.application.service.SystemApplicationService;
+import com.quadra.system.adapter.in.web.aspect.LogOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,6 +37,7 @@ public class SystemController {
     private final GetMenuTreeQuery getMenuTreeQuery;
     private final GetDailyAnalysisQuery getDailyAnalysisQuery;
     private final ListUsersQuery listUsersQuery;
+    private final SaveLoginLogUseCase saveLoginLogUseCase;
 
     public SystemController(
             AdminLoginUseCase adminLoginUseCase,
@@ -47,7 +50,8 @@ public class SystemController {
             ListAdminsQuery listAdminsQuery,
             GetMenuTreeQuery getMenuTreeQuery,
             GetDailyAnalysisQuery getDailyAnalysisQuery,
-            ListUsersQuery listUsersQuery) {
+            ListUsersQuery listUsersQuery,
+            SaveLoginLogUseCase saveLoginLogUseCase) {
         this.adminLoginUseCase = adminLoginUseCase;
         this.refreshAdminTokenUseCase = refreshAdminTokenUseCase;
         this.adminLogoutUseCase = adminLogoutUseCase;
@@ -59,16 +63,39 @@ public class SystemController {
         this.getMenuTreeQuery = getMenuTreeQuery;
         this.getDailyAnalysisQuery = getDailyAnalysisQuery;
         this.listUsersQuery = listUsersQuery;
+        this.saveLoginLogUseCase = saveLoginLogUseCase;
     }
 
     // ==================== 管理员登录/登出 ====================
 
     @Operation(summary = "管理员登录", description = "使用用户名和密码进行登录，返回双Token")
     @PostMapping("/admin/login")
-    public Result<AdminLoginResultDTO> login(@RequestBody AdminLoginRequest request) {
+    public Result<AdminLoginResultDTO> login(@RequestBody AdminLoginRequest request, HttpServletRequest httpRequest) {
         AdminLoginCommand command = new AdminLoginCommand(request.username(), request.password());
-        AdminLoginResultDTO result = adminLoginUseCase.login(command);
-        return Result.success(result);
+        try {
+            AdminLoginResultDTO result = adminLoginUseCase.login(command);
+            saveLoginLogUseCase.save(new SaveLoginLogCommand(
+                    result.adminId(),
+                    result.username(),
+                    httpRequest.getRemoteAddr(),
+                    "Unknown",
+                    httpRequest.getHeader("User-Agent"),
+                    "SUCCESS",
+                    null
+            ));
+            return Result.success(result);
+        } catch (Exception e) {
+            saveLoginLogUseCase.save(new SaveLoginLogCommand(
+                    null,
+                    request.username(),
+                    httpRequest.getRemoteAddr(),
+                    "Unknown",
+                    httpRequest.getHeader("User-Agent"),
+                    "FAILED",
+                    e.getMessage()
+            ));
+            throw e;
+        }
     }
 
     @Operation(summary = "刷新令牌", description = "使用refresh token换取新token对")
@@ -237,6 +264,7 @@ public class SystemController {
         return Result.success(menuId);
     }
 
+    @LogOperation(module = "系统管理", action = "获取菜单树")
     @Operation(summary = "获取菜单树", description = "获取完整的菜单树结构")
     @GetMapping("/menus/tree")
     public Result<List<MenuTreeDTO>> getMenuTree() {
