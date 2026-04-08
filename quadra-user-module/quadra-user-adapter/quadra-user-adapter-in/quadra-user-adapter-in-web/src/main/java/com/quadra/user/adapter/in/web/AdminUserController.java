@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "AdminUser", description = "管理员用户管理接口")
 @Slf4j
 @RestController
-@RequestMapping("/v1/admin/users")
+@RequestMapping("/users/admin/users")
 public class AdminUserController {
 
     private final AdminUserQueryUseCase adminUserQueryUseCase;

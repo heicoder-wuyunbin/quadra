@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "quadra-user", path = "/v1/admin/users")
+@FeignClient(name = "quadra-user", path = "/users/admin/users")
 public interface UserServiceClient {
 
     @GetMapping

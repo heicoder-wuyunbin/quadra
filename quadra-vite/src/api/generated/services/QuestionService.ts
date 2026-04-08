@@ -24,7 +24,7 @@ export class QuestionService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/questions/{id}',
+            url: '/api/users/questions/{id}',
             path: {
                 'id': id,
             },
@@ -47,7 +47,7 @@ export class QuestionService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/questions/{id}',
+            url: '/api/users/questions/{id}',
             path: {
                 'id': id,
             },
@@ -69,7 +69,7 @@ export class QuestionService {
     ): CancelablePromise<ResultPageResultQuestionItemDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/questions',
+            url: '/api/users/questions',
             query: {
                 'pageNo': pageNo,
                 'pageSize': pageSize,
@@ -91,7 +91,7 @@ export class QuestionService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/questions',
+            url: '/api/users/questions',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

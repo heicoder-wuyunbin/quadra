@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Question", description = "破冰问题接口")
 @RestController
-@RequestMapping("/v1/questions")
+@RequestMapping("/users/questions")
 public class QuestionController {
 
     private final QuestionUseCase questionUseCase;

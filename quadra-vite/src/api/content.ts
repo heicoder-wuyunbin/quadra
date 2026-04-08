@@ -31,21 +31,21 @@ export interface TimelineItemDTO {
  * 发布图文动态
  */
 export const publishMovement = async (data: PublishMovementRequest) => {
-  return contentApi.post('/api/v1/content/movements', data);
+  return contentApi.post('/api/content/movements', data);
 };
 
 /**
  * 删除图文动态
  */
 export const deleteMovement = async (movementId: number) => {
-  return contentApi.delete(`/api/v1/content/movements/${movementId}`);
+  return contentApi.delete(`/api/content/movements/${movementId}`);
 };
 
 /**
  * 拉取我的时间线
  */
 export const pullTimeline = async (pageNo = 1, pageSize = 20) => {
-  return contentApi.get('/api/v1/content/timeline', {
+  return contentApi.get('/api/content/timeline', {
     params: { pageNo, pageSize },
   });
 };
@@ -59,5 +59,5 @@ export const publishVideo = async (data: {
   duration: number;
   textContent?: string;
 }) => {
-  return contentApi.post('/api/v1/content/videos', data);
+  return contentApi.post('/api/content/videos', data);
 };

@@ -17,11 +17,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/v1/users/**", "/v1/blacklists/**", "/v1/questions/**")
+                .addPathPatterns("/users/**")
                 .excludePathPatterns(
-                        "/v1/users/register",
-                        "/v1/users/login",
-                        "/v1/users/refresh"
+                        "/users/register",
+                        "/users/login",
+                        "/users/refresh"
                 );
     }
 }

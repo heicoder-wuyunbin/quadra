@@ -28,7 +28,7 @@ export class UserService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/users/{id}/setting',
+            url: '/api/users/{id}/setting',
             path: {
                 'id': id,
             },
@@ -51,7 +51,7 @@ export class UserService {
     ): CancelablePromise<ResultUserProfileDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/{id}/profile',
+            url: '/api/users/{id}/profile',
             path: {
                 'id': id,
             },
@@ -74,7 +74,7 @@ export class UserService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/users/{id}/profile',
+            url: '/api/users/{id}/profile',
             path: {
                 'id': id,
             },
@@ -97,7 +97,7 @@ export class UserService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/register',
+            url: '/api/users/register',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -117,7 +117,7 @@ export class UserService {
     ): CancelablePromise<ResultLoginResultDTO> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/refresh',
+            url: '/api/users/refresh',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -137,7 +137,7 @@ export class UserService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/logout',
+            url: '/api/users/logout',
             headers: {
                 'Authorization': authorization,
             },
@@ -158,7 +158,7 @@ export class UserService {
     ): CancelablePromise<ResultLoginResultDTO> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/login',
+            url: '/api/users/login',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

@@ -25,7 +25,7 @@ export class ContentService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/content/videos',
+            url: '/api/content/videos',
             headers: {
                 'X-User-Id': xUserId,
             },
@@ -50,7 +50,7 @@ export class ContentService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/content/movements',
+            url: '/api/content/movements',
             headers: {
                 'X-User-Id': xUserId,
             },
@@ -77,7 +77,7 @@ export class ContentService {
     ): CancelablePromise<ResultPageResultTimelineItemDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/content/timeline',
+            url: '/api/content/timeline',
             headers: {
                 'X-User-Id': xUserId,
             },
@@ -104,7 +104,7 @@ export class ContentService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/content/movements/{id}',
+            url: '/api/content/movements/{id}',
             path: {
                 'id': id,
             },

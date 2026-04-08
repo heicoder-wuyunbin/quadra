@@ -31,7 +31,7 @@ import java.util.List;
 
 @Tag(name = "Content", description = "内容相关接口")
 @RestController
-@RequestMapping("/v1/content")
+@RequestMapping("/content")
 public class ContentController {
 
     private final PublishMovementUseCase publishMovementUseCase;

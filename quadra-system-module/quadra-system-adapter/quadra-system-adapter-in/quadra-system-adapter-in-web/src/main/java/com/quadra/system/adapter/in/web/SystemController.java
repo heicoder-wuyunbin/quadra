@@ -21,7 +21,7 @@ import java.util.List;
 
 @Tag(name = "System", description = "系统管理相关接口")
 @RestController
-@RequestMapping("/v1/system")
+@RequestMapping("/system")
 public class SystemController {
 
     private final AdminLoginUseCase adminLoginUseCase;

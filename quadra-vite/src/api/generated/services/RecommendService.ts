@@ -22,7 +22,7 @@ export class RecommendService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/recommends/actions',
+            url: '/api/recommends/actions',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -44,7 +44,7 @@ export class RecommendService {
     ): CancelablePromise<ResultPageResultRecommendUserDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/recommends/users',
+            url: '/api/recommends/users',
             query: {
                 'pageNum': pageNum,
                 'pageSize': pageSize,
@@ -68,7 +68,7 @@ export class RecommendService {
     ): CancelablePromise<ResultPageResultRecommendContentDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/recommends/contents',
+            url: '/api/recommends/contents',
             query: {
                 'pageNum': pageNum,
                 'pageSize': pageSize,

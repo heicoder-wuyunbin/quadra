@@ -23,7 +23,7 @@ export class SocialService {
     ): CancelablePromise<ResultMatchResultDTO> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/social/swipes',
+            url: '/api/social/swipes',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -43,7 +43,7 @@ export class SocialService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/social/follows',
+            url: '/api/social/follows',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -65,7 +65,7 @@ export class SocialService {
     ): CancelablePromise<ResultPageResultFollowerDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/social/following',
+            url: '/api/social/following',
             query: {
                 'pageNo': pageNo,
                 'pageSize': pageSize,
@@ -89,7 +89,7 @@ export class SocialService {
     ): CancelablePromise<ResultPageResultFollowerDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/social/followers',
+            url: '/api/social/followers',
             query: {
                 'pageNo': pageNo,
                 'pageSize': pageSize,
@@ -111,7 +111,7 @@ export class SocialService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/social/follows/{targetUserId}',
+            url: '/api/social/follows/{targetUserId}',
             path: {
                 'targetUserId': targetUserId,
             },

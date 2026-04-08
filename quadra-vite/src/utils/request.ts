@@ -43,8 +43,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response;
       const requestUrl: string = error.config?.url || '';
-      // 管理后台：所有请求都经由网关（统一 /api/v1 前缀）
-      const isAdminApi = requestUrl.startsWith('/api/v1');
+      // 管理后台：所有请求都经由网关（统一 /api 前缀）
+      const isAdminApi = requestUrl.startsWith('/api');
       
       if (status === 401) {
         // 仅对管理端接口触发强制登出，避免普通用户接口误伤
@@ -108,7 +108,7 @@ const request = async <D = unknown, R = unknown>(
  * - 成功：返回 data
  * - 失败：抛出 Error（包含 code/message/requestId）
  *
- * 说明：管理后台请求统一使用 /api/v1 前缀，通过 Vite proxy/生产网关转发到后端真实 /v1。
+ * 说明：管理后台请求统一使用 /api 前缀，通过 Vite proxy/生产网关转发到后端真实服务路径（不含 /v1）。
  */
 export const requestApi = async <T, D = unknown>(
   config: AxiosRequestConfig<D>

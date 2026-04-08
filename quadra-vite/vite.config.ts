@@ -15,7 +15,8 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:18080',
         changeOrigin: true,
-        // /api/v1/** -> /v1/**
+        // 前端统一 /api/**，但网关/后端实际不带 /api：
+        //   /api/system/** -> /system/**
         rewrite: (p) => p.replace(/^\/api/, ''),
       },
     },

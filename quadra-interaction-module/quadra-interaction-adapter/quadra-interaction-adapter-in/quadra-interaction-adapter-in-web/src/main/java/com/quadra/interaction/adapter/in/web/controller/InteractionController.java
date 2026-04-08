@@ -22,7 +22,7 @@ import java.util.Map;
  * 互动控制器
  */
 @RestController
-@RequestMapping("/v1/interactions")
+@RequestMapping("/interactions")
 public class InteractionController {
 
     private final LikeTargetUseCase likeTargetUseCase;

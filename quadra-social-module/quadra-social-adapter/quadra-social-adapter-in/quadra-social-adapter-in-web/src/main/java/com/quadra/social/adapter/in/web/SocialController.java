@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Social", description = "社交关系相关接口")
 @RestController
-@RequestMapping("/v1/social")
+@RequestMapping("/social")
 public class SocialController {
 
     private final FollowUserUseCase followUserUseCase;

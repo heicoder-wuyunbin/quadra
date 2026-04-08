@@ -22,7 +22,7 @@ export class BlacklistService {
     ): CancelablePromise<ResultPageResultBlacklistItemDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/blacklists',
+            url: '/api/users/blacklists',
             query: {
                 'pageNo': pageNo,
                 'pageSize': pageSize,
@@ -44,7 +44,7 @@ export class BlacklistService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/blacklists',
+            url: '/api/users/blacklists',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -64,7 +64,7 @@ export class BlacklistService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/blacklists',
+            url: '/api/users/blacklists',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

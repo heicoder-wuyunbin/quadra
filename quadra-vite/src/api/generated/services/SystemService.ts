@@ -32,7 +32,7 @@ export class SystemService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/roles',
+            url: '/api/system/roles',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -52,7 +52,7 @@ export class SystemService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/roles/menus',
+            url: '/api/system/roles/menus',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -72,7 +72,7 @@ export class SystemService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/menus',
+            url: '/api/system/menus',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -96,7 +96,7 @@ export class SystemService {
     ): CancelablePromise<ResultPageResultAdminDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/system/admins',
+            url: '/api/system/admins',
             query: {
                 'status': status,
                 'page': page,
@@ -119,7 +119,7 @@ export class SystemService {
     ): CancelablePromise<ResultLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/admins',
+            url: '/api/system/admins',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -139,7 +139,7 @@ export class SystemService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/admin/roles',
+            url: '/api/system/admin/roles',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -159,7 +159,7 @@ export class SystemService {
     ): CancelablePromise<ResultAdminTokenResultDTO> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/admin/refresh',
+            url: '/api/system/admin/refresh',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -179,7 +179,7 @@ export class SystemService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/admin/logout',
+            url: '/api/system/admin/logout',
             headers: {
                 'Authorization': authorization,
             },
@@ -200,7 +200,7 @@ export class SystemService {
     ): CancelablePromise<ResultAdminLoginResultDTO> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/system/admin/login',
+            url: '/api/system/admin/login',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -217,7 +217,7 @@ export class SystemService {
     public static getMenuTree(): CancelablePromise<ResultListMenuTreeDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/system/menus/tree',
+            url: '/api/system/menus/tree',
             errors: {
                 500: `Internal Server Error`,
             },
@@ -235,7 +235,7 @@ export class SystemService {
     ): CancelablePromise<ResultDailyAnalysisDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/system/analysis/daily',
+            url: '/api/system/analysis/daily',
             query: {
                 'date': date,
             },

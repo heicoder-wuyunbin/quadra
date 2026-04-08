@@ -21,7 +21,7 @@ export class InteractionControllerService {
     ): CancelablePromise<ResultMapStringLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/interactions/likes',
+            url: '/api/interactions/likes',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -41,7 +41,7 @@ export class InteractionControllerService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/interactions/likes',
+            url: '/api/interactions/likes',
             query: {
                 'targetType': targetType,
                 'targetId': targetId,
@@ -67,7 +67,7 @@ export class InteractionControllerService {
     ): CancelablePromise<ResultPageResultCommentDTO> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/interactions/comments',
+            url: '/api/interactions/comments',
             query: {
                 'targetType': targetType,
                 'targetId': targetId,
@@ -89,7 +89,7 @@ export class InteractionControllerService {
     ): CancelablePromise<ResultMapStringLong> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/interactions/comments',
+            url: '/api/interactions/comments',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -107,7 +107,7 @@ export class InteractionControllerService {
     ): CancelablePromise<ResultVoid> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/interactions/comments/{commentId}',
+            url: '/api/interactions/comments/{commentId}',
             path: {
                 'commentId': commentId,
             },

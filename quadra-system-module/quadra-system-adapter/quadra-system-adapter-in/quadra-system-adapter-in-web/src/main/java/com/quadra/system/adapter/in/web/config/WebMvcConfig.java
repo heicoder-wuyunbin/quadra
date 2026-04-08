@@ -17,10 +17,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(adminAuthInterceptor)
-                .addPathPatterns("/v1/system/**")
+                .addPathPatterns("/system/**", "/message/**", "/monitor/**")
                 .excludePathPatterns(
-                        "/v1/system/admin/login",
-                        "/v1/system/admin/refresh"
+                        "/system/admin/login",
+                        "/system/admin/refresh"
                 );
     }
 }

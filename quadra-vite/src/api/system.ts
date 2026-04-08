@@ -21,14 +21,14 @@ export interface AdminLoginResultDTO {
  * 管理员登录
  */
 export const adminLogin = async (data: AdminLoginRequest) => {
-  return systemApi.post<AdminLoginResultDTO>('/api/v1/system/admin/login', data);
+  return systemApi.post<AdminLoginResultDTO>('/api/system/admin/login', data);
 };
 
 /**
  * 刷新令牌
  */
 export const refreshAdminToken = async (refreshToken: string) => {
-  return systemApi.post<AdminLoginResultDTO>('/api/v1/system/admin/refresh', {
+  return systemApi.post<AdminLoginResultDTO>('/api/system/admin/refresh', {
     refreshToken,
   });
 };
@@ -37,14 +37,14 @@ export const refreshAdminToken = async (refreshToken: string) => {
  * 管理员登出
  */
 export const adminLogout = async () => {
-  return systemApi.post('/api/v1/system/admin/logout');
+  return systemApi.post('/api/system/admin/logout');
 };
 
 /**
  * 获取管理员列表
  */
 export const listAdmins = async (status?: number, page = 1, size = 10) => {
-  return systemApi.get('/api/v1/system/admins', {
+  return systemApi.get('/api/system/admins', {
     params: { status, page, size },
   });
 };
@@ -57,14 +57,14 @@ export const createAdmin = async (data: {
   password: string;
   realName: string;
 }) => {
-  return systemApi.post<number>('/api/v1/system/admins', data);
+  return systemApi.post<number>('/api/system/admins', data);
 };
 
 /**
  * 分配角色
  */
 export const assignRole = async (adminId: number, roleIds: number[]) => {
-  return systemApi.post('/api/v1/system/admin/roles', {
+  return systemApi.post('/api/system/admin/roles', {
     adminId,
     roleIds,
   });

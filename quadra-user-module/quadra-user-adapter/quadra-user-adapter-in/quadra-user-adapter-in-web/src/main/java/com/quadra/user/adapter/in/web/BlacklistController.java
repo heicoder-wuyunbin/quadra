@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Blacklist", description = "用户黑名单接口")
 @RestController
-@RequestMapping("/v1/blacklists")
+@RequestMapping("/users/blacklists")
 public class BlacklistController {
 
     private final BlacklistUseCase blacklistUseCase;

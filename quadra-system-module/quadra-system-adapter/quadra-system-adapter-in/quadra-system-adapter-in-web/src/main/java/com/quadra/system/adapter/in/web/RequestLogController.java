@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 @Tag(name = "RequestLog", description = "管理后台接口访问日志")
 @RestController
-@RequestMapping("/v1/system/logs/requests")
+@RequestMapping("/system/logs/requests")
 public class RequestLogController {
 
     private final ListRequestLogsQuery listRequestLogsQuery;
@@ -46,4 +46,3 @@ public class RequestLogController {
         return Result.success(result);
     }
 }
-

@@ -35,7 +35,7 @@ import type {
 export const adminApi = {
   login: (data: AdminLoginRequest) => {
     return requestApi<AdminLoginResultDTO, AdminLoginRequest>({
-      url: '/api/v1/system/admin/login',
+      url: '/api/system/admin/login',
       method: 'post',
       data,
     });
@@ -43,7 +43,7 @@ export const adminApi = {
 
   refresh: (refreshToken: string) => {
     return requestApi<AdminLoginResultDTO, { refreshToken: string }>({
-      url: '/api/v1/system/admin/refresh',
+      url: '/api/system/admin/refresh',
       method: 'post',
       data: { refreshToken },
     });
@@ -51,14 +51,14 @@ export const adminApi = {
 
   logout: () => {
     return requestApi<void>({
-      url: '/api/v1/system/admin/logout',
+      url: '/api/system/admin/logout',
       method: 'post',
     });
   },
 
   listAdmins: (params?: { status?: number; page?: number; size?: number }) => {
     return requestApi<PageResult<AdminDTO>>({
-      url: '/api/v1/system/admins',
+      url: '/api/system/admins',
       method: 'get',
       params,
     });
@@ -66,7 +66,7 @@ export const adminApi = {
 
   createAdmin: (data: CreateAdminRequest) => {
     return requestApi<number, CreateAdminRequest>({
-      url: '/api/v1/system/admins',
+      url: '/api/system/admins',
       method: 'post',
       data,
     });
@@ -74,7 +74,7 @@ export const adminApi = {
 
   updateAdmin: (id: number, data: { realName: string }) => {
     return requestApi<void, { realName: string }>({
-      url: `/api/v1/system/admins/${id}`,
+      url: `/api/system/admins/${id}`,
       method: 'put',
       data,
     });
@@ -82,7 +82,7 @@ export const adminApi = {
 
   updateAdminPassword: (id: number, data: { password: string }) => {
     return requestApi<void, { password: string }>({
-      url: `/api/v1/system/admins/${id}/password`,
+      url: `/api/system/admins/${id}/password`,
       method: 'put',
       data,
     });
@@ -90,7 +90,7 @@ export const adminApi = {
 
   updateAdminStatus: (id: number, status: number) => {
     return requestApi<void, { status: number }>({
-      url: `/api/v1/system/admins/${id}/status`,
+      url: `/api/system/admins/${id}/status`,
       method: 'put',
       data: { status },
     });
@@ -98,7 +98,7 @@ export const adminApi = {
 
   batchUpdateAdminStatus: (adminIds: number[], status: number) => {
     return requestApi<void, { adminIds: number[]; status: number }>({
-      url: '/api/v1/system/admins/batch/status',
+      url: '/api/system/admins/batch/status',
       method: 'put',
       data: { adminIds, status },
     });
@@ -106,7 +106,7 @@ export const adminApi = {
 
   batchDeleteAdmins: (adminIds: number[]) => {
     return requestApi<void, { adminIds: number[] }>({
-      url: '/api/v1/system/admins/batch',
+      url: '/api/system/admins/batch',
       method: 'delete',
       data: { adminIds },
     });
@@ -114,7 +114,7 @@ export const adminApi = {
 
   assignRole: (data: AssignRoleRequest) => {
     return requestApi<void, AssignRoleRequest>({
-      url: '/api/v1/system/admin/roles',
+      url: '/api/system/admin/roles',
       method: 'post',
       data,
     });
@@ -122,14 +122,14 @@ export const adminApi = {
 
   getMenuTree: () => {
     return requestApi<MenuTreeDTO[]>({
-      url: '/api/v1/system/menus/tree',
+      url: '/api/system/menus/tree',
       method: 'get',
     });
   },
 
   createMenu: (data: CreateMenuRequest) => {
     return requestApi<number, CreateMenuRequest>({
-      url: '/api/v1/system/menus',
+      url: '/api/system/menus',
       method: 'post',
       data,
     });
@@ -137,7 +137,7 @@ export const adminApi = {
 
   createRole: (data: CreateRoleRequest) => {
     return requestApi<number, CreateRoleRequest>({
-      url: '/api/v1/system/roles',
+      url: '/api/system/roles',
       method: 'post',
       data,
     });
@@ -145,7 +145,7 @@ export const adminApi = {
 
   grantMenu: (data: GrantMenuRequest) => {
     return requestApi<void, GrantMenuRequest>({
-      url: '/api/v1/system/roles/menus',
+      url: '/api/system/roles/menus',
       method: 'post',
       data,
     });
@@ -153,7 +153,7 @@ export const adminApi = {
 
   getDailyAnalysis: (date: string) => {
     return requestApi<DailyAnalysisDTO>({
-      url: '/api/v1/system/analysis/daily',
+      url: '/api/system/analysis/daily',
       method: 'get',
       params: { date },
     });
@@ -161,7 +161,7 @@ export const adminApi = {
 
   listUsers: (params?: { mobile?: string; status?: number; page?: number; size?: number }) => {
     return requestApi<PageResult<UserAdminDTO>>({
-      url: '/api/v1/system/users',
+      url: '/api/system/users',
       method: 'get',
       params,
     });
@@ -169,14 +169,14 @@ export const adminApi = {
 
   getUserDetail: (id: string) => {
     return requestApi<UserDetailDTO>({
-      url: `/api/v1/system/users/${id}`,
+      url: `/api/system/users/${id}`,
       method: 'get',
     });
   },
 
   updateUserStatus: (id: string, status: number) => {
     return requestApi<void, { status: number }>({
-      url: `/api/v1/system/users/${id}/status`,
+      url: `/api/system/users/${id}/status`,
       method: 'put',
       data: { status },
     });
@@ -184,7 +184,7 @@ export const adminApi = {
 
   resetUserPassword: (id: string) => {
     return requestApi<{ newPassword: string }>({
-      url: `/api/v1/system/users/${id}/reset-password`,
+      url: `/api/system/users/${id}/reset-password`,
       method: 'post',
     });
   },
@@ -193,7 +193,7 @@ export const adminApi = {
 export const contentApi = {
   timeline: (params?: { pageNo?: number; pageSize?: number }) => {
     return requestApi<unknown>({
-      url: '/api/v1/content/timeline',
+      url: '/api/content/timeline',
       method: 'get',
       params,
     });
@@ -203,7 +203,7 @@ export const contentApi = {
 export const socialApi = {
   followers: (params?: { pageNo?: number; pageSize?: number }) => {
     return requestApi<unknown>({
-      url: '/api/v1/social/followers',
+      url: '/api/social/followers',
       method: 'get',
       params,
     });
@@ -211,7 +211,7 @@ export const socialApi = {
 
   following: (params?: { pageNo?: number; pageSize?: number }) => {
     return requestApi<unknown>({
-      url: '/api/v1/social/following',
+      url: '/api/social/following',
       method: 'get',
       params,
     });
@@ -219,7 +219,7 @@ export const socialApi = {
 
   getRecommendUsers: (params?: { pageNum?: number; pageSize?: number }) => {
     return requestApi<unknown>({
-      url: '/api/v1/recommends/users',
+      url: '/api/recommends/users',
       method: 'get',
       params,
     });
@@ -232,20 +232,20 @@ export const socialApi = {
 export const contentAdminApi = {
   listMovements: (params?: { page?: number; size?: number; userId?: string; status?: number }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/content/admin/movements',
+      url: '/api/content/admin/movements',
       method: 'get',
       params,
     });
   },
   approveMovement: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/content/admin/movements/${id}/approve`,
+      url: `/api/content/admin/movements/${id}/approve`,
       method: 'put',
     });
   },
   rejectMovement: (id: number, data?: { reason?: string }) => {
     return requestApi<void, { reason?: string } | undefined>({
-      url: `/api/v1/content/admin/movements/${id}/reject`,
+      url: `/api/content/admin/movements/${id}/reject`,
       method: 'put',
       data,
     });
@@ -253,20 +253,20 @@ export const contentAdminApi = {
 
   listVideos: (params?: { page?: number; size?: number; userId?: string; status?: number }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/content/admin/videos',
+      url: '/api/content/admin/videos',
       method: 'get',
       params,
     });
   },
   approveVideo: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/content/admin/videos/${id}/approve`,
+      url: `/api/content/admin/videos/${id}/approve`,
       method: 'put',
     });
   },
   rejectVideo: (id: number, data?: { reason?: string }) => {
     return requestApi<void, { reason?: string } | undefined>({
-      url: `/api/v1/content/admin/videos/${id}/reject`,
+      url: `/api/content/admin/videos/${id}/reject`,
       method: 'put',
       data,
     });
@@ -274,21 +274,21 @@ export const contentAdminApi = {
 
   listReports: (params?: { page?: number; size?: number; status?: number; keyword?: string }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/content/admin/reports',
+      url: '/api/content/admin/reports',
       method: 'get',
       params,
     });
   },
   handleReport: (id: number, data?: { action?: string; remark?: string }) => {
     return requestApi<void, { action?: string; remark?: string } | undefined>({
-      url: `/api/v1/content/admin/reports/${id}/handle`,
+      url: `/api/content/admin/reports/${id}/handle`,
       method: 'put',
       data,
     });
   },
   ignoreReport: (id: number, data?: { remark?: string }) => {
     return requestApi<void, { remark?: string } | undefined>({
-      url: `/api/v1/content/admin/reports/${id}/ignore`,
+      url: `/api/content/admin/reports/${id}/ignore`,
       method: 'put',
       data,
     });
@@ -301,27 +301,27 @@ export const contentAdminApi = {
 export const socialAdminApi = {
   listMatches: (params?: { page?: number; size?: number; userId?: string }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/social/admin/matches',
+      url: '/api/social/admin/matches',
       method: 'get',
       params,
     });
   },
   listFriendships: (params?: { page?: number; size?: number; userId?: string }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/social/admin/friendships',
+      url: '/api/social/admin/friendships',
       method: 'get',
       params,
     });
   },
   blockFriendship: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/social/admin/friendships/${id}/block`,
+      url: `/api/social/admin/friendships/${id}/block`,
       method: 'put',
     });
   },
   deleteFriendship: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/social/admin/friendships/${id}`,
+      url: `/api/social/admin/friendships/${id}`,
       method: 'delete',
     });
   },
@@ -333,14 +333,14 @@ export const socialAdminApi = {
 export const interactionAdminApi = {
   listComments: (params?: { page?: number; size?: number; keyword?: string; status?: number }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/interactions/admin/comments',
+      url: '/api/interactions/admin/comments',
       method: 'get',
       params,
     });
   },
   deleteComment: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/interactions/admin/comments/${id}`,
+      url: `/api/interactions/admin/comments/${id}`,
       method: 'delete',
     });
   },
@@ -352,60 +352,60 @@ export const interactionAdminApi = {
 export const monitorApi = {
   listServices: () => {
     return requestApi<unknown[]>({
-      url: '/api/v1/monitor/services',
+      url: '/api/monitor/services',
       method: 'get',
     });
   },
   listPerformance: (params?: { keyword?: string }) => {
     return requestApi<unknown[]>({
-      url: '/api/v1/monitor/performance',
+      url: '/api/monitor/performance',
       method: 'get',
       params,
     });
   },
   listAlertRules: (params?: { level?: string; enabled?: boolean; keyword?: string }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/monitor/alerts/rules',
+      url: '/api/monitor/alerts/rules',
       method: 'get',
       params,
     });
   },
   createAlertRule: (data: unknown) => {
     return requestApi<number, unknown>({
-      url: '/api/v1/monitor/alerts/rules',
+      url: '/api/monitor/alerts/rules',
       method: 'post',
       data,
     });
   },
   updateAlertRule: (id: number, data: unknown) => {
     return requestApi<void, unknown>({
-      url: `/api/v1/monitor/alerts/rules/${id}`,
+      url: `/api/monitor/alerts/rules/${id}`,
       method: 'put',
       data,
     });
   },
   deleteAlertRule: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/monitor/alerts/rules/${id}`,
+      url: `/api/monitor/alerts/rules/${id}`,
       method: 'delete',
     });
   },
   listAlertEvents: (params?: { level?: string; status?: string; keyword?: string; page?: number; size?: number }) => {
     return requestApi<PageResult<unknown>>({
-      url: '/api/v1/monitor/alerts/events',
+      url: '/api/monitor/alerts/events',
       method: 'get',
       params,
     });
   },
   ackAlertEvent: (id: string) => {
     return requestApi<void>({
-      url: `/api/v1/monitor/alerts/events/${id}/ack`,
+      url: `/api/monitor/alerts/events/${id}/ack`,
       method: 'put',
     });
   },
   resolveAlertEvent: (id: string) => {
     return requestApi<void>({
-      url: `/api/v1/monitor/alerts/events/${id}/resolve`,
+      url: `/api/monitor/alerts/events/${id}/resolve`,
       method: 'put',
     });
   },
@@ -417,7 +417,7 @@ export const monitorApi = {
 export const messageApi = {
   listNotices: (params?: NoticeQueryParams) => {
     return requestApi<PageResult<NoticeDTO>>({
-      url: '/api/v1/message/admin/notices',
+      url: '/api/message/admin/notices',
       method: 'get',
       params,
     });
@@ -425,7 +425,7 @@ export const messageApi = {
 
   sendNotice: (data: SendNoticeRequest) => {
     return requestApi<number, SendNoticeRequest>({
-      url: '/api/v1/message/admin/notices',
+      url: '/api/message/admin/notices',
       method: 'post',
       data,
     });
@@ -433,14 +433,14 @@ export const messageApi = {
 
   deleteNotice: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/message/admin/notices/${id}`,
+      url: `/api/message/admin/notices/${id}`,
       method: 'delete',
     });
   },
 
   listTemplates: (params?: MessageTemplateQueryParams) => {
     return requestApi<PageResult<MessageTemplateDTO>>({
-      url: '/api/v1/message/admin/templates',
+      url: '/api/message/admin/templates',
       method: 'get',
       params,
     });
@@ -448,7 +448,7 @@ export const messageApi = {
 
   createTemplate: (data: Omit<MessageTemplateDTO, 'id' | 'createdAt' | 'updatedAt'>) => {
     return requestApi<number, Omit<MessageTemplateDTO, 'id' | 'createdAt' | 'updatedAt'>>({
-      url: '/api/v1/message/admin/templates',
+      url: '/api/message/admin/templates',
       method: 'post',
       data,
     });
@@ -456,7 +456,7 @@ export const messageApi = {
 
   updateTemplate: (id: number, data: Partial<Omit<MessageTemplateDTO, 'id' | 'createdAt' | 'updatedAt'>>) => {
     return requestApi<void, Partial<Omit<MessageTemplateDTO, 'id' | 'createdAt' | 'updatedAt'>>>({
-      url: `/api/v1/message/admin/templates/${id}`,
+      url: `/api/message/admin/templates/${id}`,
       method: 'put',
       data,
     });
@@ -464,7 +464,7 @@ export const messageApi = {
 
   listAnnouncements: (params?: AnnouncementQueryParams) => {
     return requestApi<PageResult<AnnouncementDTO>>({
-      url: '/api/v1/message/admin/announcements',
+      url: '/api/message/admin/announcements',
       method: 'get',
       params,
     });
@@ -472,7 +472,7 @@ export const messageApi = {
 
   createAnnouncement: (data: Omit<AnnouncementDTO, 'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'publisherName'>) => {
     return requestApi<number, Omit<AnnouncementDTO, 'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'publisherName'>>({
-      url: '/api/v1/message/admin/announcements',
+      url: '/api/message/admin/announcements',
       method: 'post',
       data,
     });
@@ -483,7 +483,7 @@ export const messageApi = {
     data: Partial<Omit<AnnouncementDTO, 'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'publisherName'>>
   ) => {
     return requestApi<void, Partial<Omit<AnnouncementDTO, 'id' | 'createdAt' | 'updatedAt' | 'publishedAt' | 'publisherName'>>>({
-      url: `/api/v1/message/admin/announcements/${id}`,
+      url: `/api/message/admin/announcements/${id}`,
       method: 'put',
       data,
     });
@@ -491,21 +491,21 @@ export const messageApi = {
 
   publishAnnouncement: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/message/admin/announcements/${id}/publish`,
+      url: `/api/message/admin/announcements/${id}/publish`,
       method: 'put',
     });
   },
 
   offlineAnnouncement: (id: number) => {
     return requestApi<void>({
-      url: `/api/v1/message/admin/announcements/${id}/offline`,
+      url: `/api/message/admin/announcements/${id}/offline`,
       method: 'put',
     });
   },
 
   toggleAnnouncementTop: (id: number, isTop: boolean) => {
     return requestApi<void, { isTop: boolean }>({
-      url: `/api/v1/message/admin/announcements/${id}/top`,
+      url: `/api/message/admin/announcements/${id}/top`,
       method: 'put',
       data: { isTop },
     });
@@ -513,7 +513,7 @@ export const messageApi = {
 
   listRecords: (params?: PushRecordQueryParams) => {
     return requestApi<PageResult<PushRecordDTO>>({
-      url: '/api/v1/message/admin/records',
+      url: '/api/message/admin/records',
       method: 'get',
       params,
     });
@@ -526,7 +526,7 @@ export const messageApi = {
 export const logApi = {
   getOperationLogs: (params?: LogQueryParams) => {
     return requestApi<PageResult<OperationLogDTO>>({
-      url: '/api/v1/log/operation',
+      url: '/api/system/logs/operation',
       method: 'get',
       params,
     });
@@ -534,7 +534,7 @@ export const logApi = {
 
   getLoginLogs: (params?: LogQueryParams) => {
     return requestApi<PageResult<LoginLogDTO>>({
-      url: '/api/v1/log/login',
+      url: '/api/system/logs/login',
       method: 'get',
       params,
     });
@@ -542,7 +542,7 @@ export const logApi = {
 
   getErrorLogs: (params?: LogQueryParams & { level?: string; service?: string; handled?: boolean }) => {
     return requestApi<PageResult<ErrorLogDTO>>({
-      url: '/api/v1/log/error',
+      url: '/api/system/logs/error',
       method: 'get',
       params,
     });
@@ -550,7 +550,7 @@ export const logApi = {
 
   markErrorHandled: (id: string, handled = true) => {
     return requestApi<void, { handled: boolean }>({
-      url: `/api/v1/log/error/${id}/handled`,
+      url: `/api/system/logs/error/${id}/handled`,
       method: 'put',
       data: { handled },
     });
@@ -558,7 +558,7 @@ export const logApi = {
 
   getApiStats: (params?: LogQueryParams) => {
     return requestApi<PageResult<ApiStatDTO>>({
-      url: '/api/v1/log/api',
+      url: '/api/system/logs/api',
       method: 'get',
       params,
     });
@@ -566,7 +566,7 @@ export const logApi = {
 
   getSlowSql: (params?: LogQueryParams) => {
     return requestApi<PageResult<SlowSqlDTO>>({
-      url: '/api/v1/log/slow-sql',
+      url: '/api/system/logs/slow-sql',
       method: 'get',
       params,
     });
@@ -577,7 +577,7 @@ export const logApi = {
    */
   getRequestLogs: (params?: RequestLogQueryParams) => {
     return requestApi<PageResult<RequestLogDTO>>({
-      url: '/api/v1/system/logs/requests',
+      url: '/api/system/logs/requests',
       method: 'get',
       params,
     });

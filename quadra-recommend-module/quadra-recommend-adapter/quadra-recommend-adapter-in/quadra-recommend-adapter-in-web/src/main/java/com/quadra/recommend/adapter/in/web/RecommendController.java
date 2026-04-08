@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "Recommend", description = "推荐相关接口")
 @RestController
-@RequestMapping("/v1/recommends")
+@RequestMapping("/recommends")
 public class RecommendController {
 
     private final RecordActionUseCase recordActionUseCase;
