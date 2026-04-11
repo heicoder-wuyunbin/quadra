@@ -42,7 +42,7 @@ public class LoginApplicationService implements LoginUseCase, ParseAccessTokenUs
         String accessToken = userLoginPort.generateAccessToken(user.getId());
         String refreshToken = userLoginPort.generateRefreshToken(user.getId());
 
-        return new LoginResultDTO(accessToken, refreshToken, user.getId());
+        return new LoginResultDTO(accessToken, refreshToken, String.valueOf(user.getId()));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class LoginApplicationService implements LoginUseCase, ParseAccessTokenUs
         Long userId = userLoginPort.parseRefreshTokenUserId(refreshToken);
         String accessToken = userLoginPort.generateAccessToken(userId);
         String newRefreshToken = userLoginPort.generateRefreshToken(userId);
-        return new LoginResultDTO(accessToken, newRefreshToken, userId);
+        return new LoginResultDTO(accessToken, newRefreshToken, String.valueOf(userId));
     }
 
     @Override

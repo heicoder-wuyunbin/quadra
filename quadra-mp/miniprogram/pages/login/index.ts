@@ -37,7 +37,13 @@ Page({
 
     try {
       const session = await login({ mobile, password })
-      saveSession(session)
+      // 确保userId是string类型
+      const sessionWithStringId = {
+        ...session,
+        userId: String(session.userId)
+      }
+      console.log('登录成功，用户ID:', sessionWithStringId.userId, typeof sessionWithStringId.userId)
+      saveSession(sessionWithStringId)
       wx.showToast({
         title: '登录成功',
         icon: 'success',

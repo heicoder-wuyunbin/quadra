@@ -18,7 +18,7 @@ export interface PageResult<T> {
 }
 
 export interface Session {
-  userId: number
+  userId: string
   accessToken: string
   refreshToken: string
   expiresIn: number
@@ -30,36 +30,36 @@ export interface LoginRequest {
 }
 
 export interface UserProfileDTO {
-  userId: number
+  userId: string
   nickname?: string
   avatar?: string
-  gender?: 'MALE' | 'FEMALE' | 'UNKNOWN'
+  gender?: number
   birthday?: string
   city?: string
   income?: string
   profession?: string
-  marriage?: 'SINGLE' | 'MARRIED' | 'DIVORCED'
+  marriage?: number
   coverPic?: string
-  tags?: string[]
+  tags?: string | Record<string, any>
 }
 
 export interface UpdateProfileRequest {
   nickname?: string
   avatar?: string
-  gender?: 'MALE' | 'FEMALE' | 'UNKNOWN'
+  gender?: number
   birthday?: string
   city?: string
   income?: string
   profession?: string
-  marriage?: 'SINGLE' | 'MARRIED' | 'DIVORCED'
+  marriage?: number
   coverPic?: string
-  tags?: string[]
+  tags?: Record<string, any>
 }
 
 export interface UpdateSettingRequest {
-  likeNotification?: boolean
-  commentNotification?: boolean
-  systemNotification?: boolean
+  likeNotification?: number
+  commentNotification?: number
+  systemNotification?: number
 }
 
 export interface NotificationSettingDraft {
@@ -69,14 +69,14 @@ export interface NotificationSettingDraft {
 }
 
 export interface BlacklistItemDTO {
-  userId: number
+  userId: string
   nickname?: string
   avatar?: string
   blacklistedAt?: string
 }
 
 export interface QuestionItemDTO {
-  questionId: number
+  questionId: string
   question: string
   sortOrder?: number
   createdAt?: string
@@ -179,13 +179,13 @@ export function clearSession(): void {
   wx.removeStorageSync(SESSION_STORAGE_KEY)
 }
 
-export function getNotificationSettingDraft(userId: number): NotificationSettingDraft {
+export function getNotificationSettingDraft(userId: string): NotificationSettingDraft {
   const draft = wx.getStorageSync(`quadra-setting-${userId}`) as NotificationSettingDraft | null
   return draft || { ...defaultNotificationSetting }
 }
 
 export function saveNotificationSettingDraft(
-  userId: number,
+  userId: string,
   draft: NotificationSettingDraft,
 ): void {
   wx.setStorageSync(`quadra-setting-${userId}`, draft)
@@ -193,7 +193,7 @@ export function saveNotificationSettingDraft(
 
 export function login(payload: LoginRequest): Promise<Session> {
   return request<Session>({
-    url: '/v1/users/login',
+    url: '/users/login',
     method: 'POST',
     data: payload,
   })
@@ -201,25 +201,25 @@ export function login(payload: LoginRequest): Promise<Session> {
 
 export function logout(): Promise<void> {
   return request<void>({
-    url: '/v1/users/logout',
+    url: '/users/logout',
     method: 'POST',
     auth: true,
   })
 }
 
-export function getUserProfile(userId: number): Promise<UserProfileDTO> {
+export function getUserProfile(userId: string): Promise<UserProfileDTO> {
   return request<UserProfileDTO>({
-    url: `/v1/users/${userId}/profile`,
+    url: `/users/${userId}/profile`,
     auth: true,
   })
 }
 
 export function updateUserProfile(
-  userId: number,
+  userId: string,
   payload: UpdateProfileRequest,
 ): Promise<void> {
   return request<void>({
-    url: `/v1/users/${userId}/profile`,
+    url: `/users/${userId}/profile`,
     method: 'PUT',
     data: payload,
     auth: true,
@@ -227,11 +227,11 @@ export function updateUserProfile(
 }
 
 export function updateUserSetting(
-  userId: number,
+  userId: string,
   payload: UpdateSettingRequest,
 ): Promise<void> {
   return request<void>({
-    url: `/v1/users/${userId}/setting`,
+    url: `/users/${userId}/setting`,
     method: 'PUT',
     data: payload,
     auth: true,
@@ -243,24 +243,24 @@ export function listMyBlacklist(
   pageSize = 10,
 ): Promise<PageResult<BlacklistItemDTO>> {
   return request<PageResult<BlacklistItemDTO>>({
-    url: '/v1/blacklists',
+    url: '/users/blacklists',
     data: { pageNo, pageSize },
     auth: true,
   })
 }
 
-export function addBlacklist(targetUserId: number): Promise<void> {
+export function addBlacklist(targetUserId: string): Promise<void> {
   return request<void>({
-    url: '/v1/blacklists',
+    url: '/users/blacklists',
     method: 'POST',
     data: { targetUserId },
     auth: true,
   })
 }
 
-export function removeBlacklist(targetUserId: number): Promise<void> {
+export function removeBlacklist(targetUserId: string): Promise<void> {
   return request<void>({
-    url: '/v1/blacklists',
+    url: '/users/blacklists',
     method: 'DELETE',
     data: { targetUserId },
     auth: true,
@@ -272,7 +272,7 @@ export function listMyQuestions(
   pageSize = 10,
 ): Promise<PageResult<QuestionItemDTO>> {
   return request<PageResult<QuestionItemDTO>>({
-    url: '/v1/questions',
+    url: '/users/questions',
     data: { pageNo, pageSize },
     auth: true,
   })
@@ -280,7 +280,7 @@ export function listMyQuestions(
 
 export function addQuestion(question: string, sortOrder: number): Promise<number> {
   return request<number>({
-    url: '/v1/questions',
+    url: '/users/questions',
     method: 'POST',
     data: { question, sortOrder },
     auth: true,
@@ -288,21 +288,21 @@ export function addQuestion(question: string, sortOrder: number): Promise<number
 }
 
 export function updateQuestion(
-  questionId: number,
+  questionId: string,
   question: string,
   sortOrder: number,
 ): Promise<void> {
   return request<void>({
-    url: `/v1/questions/${questionId}`,
+    url: `/users/questions/${questionId}`,
     method: 'PUT',
     data: { question, sortOrder },
     auth: true,
   })
 }
 
-export function deleteQuestion(questionId: number): Promise<void> {
+export function deleteQuestion(questionId: string): Promise<void> {
   return request<void>({
-    url: `/v1/questions/${questionId}`,
+    url: `/users/questions/${questionId}`,
     method: 'DELETE',
     auth: true,
   })
